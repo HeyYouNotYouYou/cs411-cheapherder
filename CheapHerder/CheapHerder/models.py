@@ -1,0 +1,23 @@
+from django.db import models
+
+class Product(models.Model):
+	sku = models.CharField(max_length=200)
+	upc = models.CharField(max_length=200)
+	title = models.CharField(max_length=200)
+	description = models.TextField()
+	p_type = models.CharField(max_length=255)
+	brand = models.CharField(max_length=255)
+	colors = models.CharField(max_length=255)
+	materials = models.CharField(max_length=255)
+	attributes = models.CharField(max_length=255)
+	tags = models.CharField(max_length=255)
+	category_id = models.IntegerField()
+	unit_weight = models.DecimalField(max_digits=10, decimal_places=10)
+	category = models.CharField(max_length=200)
+	subcategory_id = models.IntegerField()
+	subcategory = models.CharField(max_length=200)
+	inventory = models.CharField(max_length=200)
+	created = models.DateTimeField()
+	modified = models.DateTimeField()
+	image_url = models.CharField(max_length=200)
+	supplier_id = models.CharField(max_length=200)
