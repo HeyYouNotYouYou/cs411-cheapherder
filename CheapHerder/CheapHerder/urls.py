@@ -15,9 +15,11 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from .views import Index
+from .views import Index, SupplierFormView
 
 urlpatterns = [
     url(r'^$', Index.as_view(), name='index'),
     url(r'^admin/', admin.site.urls),
+    url(r'^register/$', SupplierFormView.as_view(), name ='register'),
+
 ]
