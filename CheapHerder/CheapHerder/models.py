@@ -22,12 +22,18 @@ class Product(models.Model):
 	image_url = models.CharField(max_length=200)
 	supplier_id = models.CharField(max_length=200)
 
+	def __str__(self):
+		return self.sku + '-' + self.title
 
 class Price(models.Model):
 	price_id = models.AutoField(primary_key=True) 
 	price = models.DecimalField(max_digits=10, decimal_places=5)
 	quantity = models.IntegerField()
 
+	def __str__(self):
+		return str(self.price_id) + ': p(' + str(self.price) +') q(' + str(self.quantity) +')'
+
 class Product_Price(models.Model):
 	price_id = models.ForeignKey(Price)
 	sku = models.ForeignKey(Product)
+
