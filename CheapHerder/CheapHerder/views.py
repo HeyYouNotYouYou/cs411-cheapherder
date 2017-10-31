@@ -82,3 +82,36 @@ class OrganizationFormView(View):
 					return redirect('index')
 
 		return render(request, self.template_name, {'form': form})
+
+
+def SuppLogin(request):
+
+	if request.method == "POST":
+		username = request.POST['username']
+		password = request.POST['password']
+		user = authenticate(username=username, password=password)
+		if user is not None:
+			if user.is_active:
+				login(request, user)
+				return redirect('index')
+			else:
+				return render(request, 'login_supp_form.html', {'error_message': 'Your account has been disabled'})
+		else:
+			return render(request, 'login_supp_form.html', {'error_message': 'Invalid login'})
+	return render(request, 'login_supp_form.html')
+
+def OrgLogin(request):
+
+	if request.method == "POST":
+		username = request.POST['username']
+		password = request.POST['password']
+		user = authenticate(username=username, password=password)
+		if user is not None:
+			if user.is_active:
+				login(request, user)
+				return redirect('index')
+			else:
+				return render(request, 'login_org_form.html', {'error_message': 'Your account has been disabled'})
+		else:
+			return render(request, 'login_org_form.html', {'error_message': 'Invalid login'})
+	return render(request, 'login_org_form.html')
