@@ -24,5 +24,5 @@ urlpatterns = [
     url(r'^supplier/login/$', SuppLogin, name ='supp_login'),
     url(r'^organization/register/$', OrganizationFormView.as_view(), name ='org_register'),
     url(r'^organization/login/$', OrgLogin, name ='org_login'),
-
+    url(r'^supplier/dashboard/$', OrgLogin, name ='supp_dash'),
 ]
