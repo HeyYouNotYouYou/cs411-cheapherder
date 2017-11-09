@@ -5,7 +5,33 @@ from bs4 import BeautifulSoup as bs
 url_base = "https://www.dhgate.com/wholesale/cell-phones-smartphones/c105008"
 
 
-for i in range(0,1):
+def getImageURL(item):
+    imageTag = item.select("img")
+
+    # if imageTag is not empty
+    if imageTag:
+        imageTag[0] = imageTag[0]['src']
+    else:
+        imageTag.append(item.select(".photo")[0].find('a')['lazyload-src'])
+    
+    return imageTag[0]
+
+
+def getProductInfo(url):
+
+    res = requests.get(url)
+    soup = bs(res.text,"html.parser")
+
+    wprice = soup.select(".wprice-line")[0].select(".js-wholesale-list")[0].find_all('li')
+
+    # product amount and the price
+    for w in wprice:
+        print (w['nums'])
+        print (w['price'])
+
+
+
+for i in range(0,5):
 
     if i!=0:
         url = url_base + "-" + '{}'.format(i)
@@ -18,20 +44,21 @@ for i in range(0,1):
 
 
     soup = bs(res.text,"html.parser")
-    for idx, item in enumerate(soup.find_all("div",class_="listitem")):
+    listitem = soup.find_all("div",class_="listitem")
+    for idx, item in enumerate(listitem):
         
+        # the rest of items are advertisements
         if idx == 24:
             break
         
+        # product name
         print (item.select(".pro-title")[0].text)
         
-        res2 = requests.get("http:"+ item.select(".pro-title")[0].find('a').get('href'))
-        soup2 = bs(res2.text,"html.parser")
-        wprice = soup2.select(".wprice-line")[0].select(".js-wholesale-list")[0].find_all('li')
-#         print (wprice)
+        # product image url
+        imageURL = "http:" + getImageURL(item)
+        print (imageURL)
         
-        for w in wprice:
-#             print (w)
-            print (w['nums'])
-            print (w['price'])
+        # request to product info
+        productURL = "http:" + item.select(".pro-title")[0].find('a').get('href')
+        getProductInfo(productURL)
 
