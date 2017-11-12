@@ -1,17 +1,5 @@
 from django.db import models
 
-class Supplier(models.Model):
-	supplier_id = models.AutoField(primary_key=True)
-	name = models.CharField(max_length=200)
-	email = models.CharField(max_length=200)
-	address = models.TextField()
-
-class Organization(models.Model):
-	org_id = models.AutoField(primary_key=True)
-	name = models.CharField(max_length=200)
-	email = models.CharField(max_length=200)
-	shipping_address = models.TextField()
-
 class Product(models.Model):
 	sku = models.CharField(max_length=200, primary_key=True)
 	upc = models.CharField(max_length=200)
@@ -32,7 +20,7 @@ class Product(models.Model):
 	created = models.DateTimeField()
 	modified = models.DateTimeField()
 	image_url = models.CharField(max_length=200)
-	supplier_id = models.ForeignKey(Supplier)
+	supplier_id = models.ForeignKey("auth.User", limit_choices_to={'groups__name': "Suppliers"})
 
 	def __str__(self):
 		return self.sku + '-' + self.title
@@ -68,7 +56,7 @@ class Search_Item(models.Model):
 	search_id = models.AutoField(primary_key=True)
 	keyword = models.TextField()
 	created = models.DateTimeField()
-	org_id = models.ForeignKey(Organization)
+	org_id = models.ForeignKey("auth.User", limit_choices_to={'groups__name':"Organizations"})
 
 class Group(models.Model):
 	group_id = models.AutoField(primary_key=True)
@@ -76,9 +64,9 @@ class Group(models.Model):
 	product_id = models.ForeignKey(Product)
 	transaction_id = models.ForeignKey(Transaction)
 
-class Pledges(models.Model):
+class Pledge(models.Model):
 	group_id = models.ForeignKey(Group)
-	org_id = models.ForeignKey(Organization)
+	org_id = models.ForeignKey("auth.User", limit_choices_to={'groups__name':"Organizations"})
 	payment_id = models.ForeignKey(Payment)
 
 

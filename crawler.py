@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup as bs
 
 url_base = "https://www.dhgate.com/wholesale/cell-phones-smartphones/c105008"
 
+text_file = open('dhgateproducts.txt', 'w')
 
 def getImageURL(item):
     imageTag = item.select("img")
@@ -18,7 +19,7 @@ def getImageURL(item):
 
 
 def getProductInfo(url):
-
+    print("getting product info for url " + url)
     res = requests.get(url)
     soup = bs(res.text,"html.parser")
 
@@ -31,7 +32,7 @@ def getProductInfo(url):
 
 
 
-for i in range(0,5):
+for i in range(0,1):
 
     if i!=0:
         url = url_base + "-" + '{}'.format(i)
@@ -41,7 +42,7 @@ for i in range(0,5):
     url = url + ".html"
 
     res = requests.get(url);
-
+    print("retrieving products from page number: " + str(i+1))
 
     soup = bs(res.text,"html.parser")
     listitem = soup.find_all("div",class_="listitem")
@@ -51,6 +52,8 @@ for i in range(0,5):
         if idx == 24:
             break
         
+        text_file.write('INSERT INTO "CheapHerder_product" (')
+
         # product name
         print (item.select(".pro-title")[0].text)
         
