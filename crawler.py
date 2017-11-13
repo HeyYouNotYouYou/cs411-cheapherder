@@ -2,6 +2,7 @@ import requests
 import json
 from bs4 import BeautifulSoup as bs
 import datetime
+import urllib
 
 url_base = "https://www.dhgate.com/wholesale/business-industrial/c011"
 
@@ -25,7 +26,7 @@ def getImageURL(item):
 
 def productInsertSQL(value_list):
 
-    text_file.write('INSERT INTO "CheapHerder_product" (')
+    text_file.write('INSERT INTO CheapHerder_product (')
     str = ''
     for elem in product_columns:
         if str != '':
@@ -58,8 +59,8 @@ def priceInsertSQL(wprice, item_code):
         
         global price_id
 
-        price_insert = 'INSERT INTO "CheapHerder_price" ( price_id, quantity, price ) values ( ' + str(price_id) + ', ' + str(quantity) + ', ' + str(price) + ' );\n'
-        product_price_insert = 'INSERT INTO "CheapHerder_product_price" ( item_code, price_id_id ) values ( ' + '\'' + str(item_code) + '\'' + ', ' + str(price_id) + ' );\n'
+        price_insert = 'INSERT INTO CheapHerder_price ( price_id, quantity, price ) values ( ' + str(price_id) + ', ' + str(quantity) + ', ' + str(price) + ' );\n'
+        product_price_insert = 'INSERT INTO CheapHerder_product_price ( item_code, price_id ) values ( ' + '\'' + str(item_code) + '\'' + ', ' + str(price_id) + ' );\n'
         price_id = price_id + 1
 
         text_file.write(price_insert)
@@ -80,13 +81,14 @@ def getProductInfo(url):
     item_code = (list)(description_list[1].strings)[1]
     value_list.append(item_code)
     # product_name
-    value_list.append( (list)(description_list[0].strings)[1])
+    value_list.append( (list)(description_list[0].strings)[1].encode("ascii", errors="ignore").decode())
     # category
     value_list.append((list)(description_list[2].strings)[1])
     # description
-    value_list.append((list)(description_list[3].strings)[1])
+    value_list.append((list)(description_list[3].strings)[1].encode("ascii", errors="ignore").decode())
     # quantity
-    value_list.append((list)(description_list[4].strings)[1].strip())
+    quantity = (list)(description_list[4].strings)[1].encode("ascii", errors="ignore").decode().strip()
+    value_list.append(quantity)
     # package_size
     value_list.append( (list)(description_list[5].strings)[1])
     # gross_weight
@@ -107,11 +109,11 @@ def getProductInfo(url):
 ''' main '''
 
 start_time  = datetime.datetime.now()
-filename = 'dhgateproducts_'+ start_time.strftime("%Y-%m-%d %H:%M") +'.txt'
+filename = 'dhgate/dhgateproducts_'+ start_time.strftime("%Y-%m-%d %H:%M") +'.txt'
 text_file = open(filename, 'w')
 
 i=0
-while (end==False and i < 3):
+while (end==False or i <2100 ):
 
     if i!=0:
         url = url_base + "-" + '{}'.format(i)
