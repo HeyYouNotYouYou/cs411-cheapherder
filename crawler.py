@@ -1,10 +1,16 @@
 import requests
 import json
 from bs4 import BeautifulSoup as bs
+import datetime
 
-url_base = "https://www.dhgate.com/wholesale/cell-phones-smartphones/c105008"
+url_base = "https://www.dhgate.com/wholesale/business-industrial/c011"
 
-text_file = open('dhgateproducts.txt', 'w')
+product_columns = ['item_code', 'product_name', 'category', 'description', 'quantity',
+                    'package_size', 'gross_weight', 'image_url']
+price_columns = ['quantity','price']
+
+price_id = 1
+end = False
 
 def getImageURL(item):
     imageTag = item.select("img")
@@ -17,22 +23,95 @@ def getImageURL(item):
     
     return imageTag[0]
 
+def productInsertSQL(value_list):
 
-def getProductInfo(url):
-    print("getting product info for url " + url)
-    res = requests.get(url)
-    soup = bs(res.text,"html.parser")
+    text_file.write('INSERT INTO "CheapHerder_product" (')
+    str = ''
+    for elem in product_columns:
+        if str != '':
+            str = str + ', ' + elem
+        else:
+            str = elem
 
-    wprice = soup.select(".wprice-line")[0].select(".js-wholesale-list")[0].find_all('li')
+    str = str + ')'
+    text_file.write(str)
+
+    text_file.write(' values (')
+    for idx, val in enumerate(value_list):
+        if idx != 0:
+            text_file.write(', ')
+        text_file.write("\'")
+        text_file.write(val)
+        text_file.write("\'")
+
+    text_file.write(');')
+    text_file.write('\n')
+
+
+def priceInsertSQL(wprice, item_code):
 
     # product amount and the price
     for w in wprice:
-        print (w['nums'])
-        print (w['price'])
+        quantity = str(w['nums'])
+        price  = w['price']
+        quantity = quantity.split( )[0]
+        
+        global price_id
+
+        price_insert = 'INSERT INTO "CheapHerder_price" ( price_id, quantity, price ) values ( ' + str(price_id) + ', ' + str(quantity) + ', ' + str(price) + ' );\n'
+        product_price_insert = 'INSERT INTO "CheapHerder_product_price" ( item_code, price_id_id ) values ( ' + '\'' + str(item_code) + '\'' + ', ' + str(price_id) + ' );\n'
+        price_id = price_id + 1
+
+        text_file.write(price_insert)
+        text_file.write(product_price_insert)
+   
+
+
+def getProductInfo(url):
+    print("getting product info for url " + url)
+
+    res = requests.get(url)
+
+    soup = bs(res.text,"html.parser")
+
+    value_list = []
+    description_list = soup.select(".description")[0].find_all("li")
+    # item_code
+    item_code = (list)(description_list[1].strings)[1]
+    value_list.append(item_code)
+    # product_name
+    value_list.append( (list)(description_list[0].strings)[1])
+    # category
+    value_list.append((list)(description_list[2].strings)[1])
+    # description
+    value_list.append((list)(description_list[3].strings)[1])
+    # quantity
+    value_list.append((list)(description_list[4].strings)[1].strip())
+    # package_size
+    value_list.append( (list)(description_list[5].strings)[1])
+    # gross_weight
+    value_list.append((list)(description_list[6].strings)[1])
+    # image_url
+    image_url = "http:" + soup.select(".photo-tour")[0].find('img')['src']
+    value_list.append(image_url)
+
+    productInsertSQL(value_list)
+
+    wprice = soup.select(".wprice-line")[0].select(".js-wholesale-list")[0].find_all('li')   
+    priceInsertSQL(wprice,item_code)
 
 
 
-for i in range(0,1):
+
+
+''' main '''
+
+start_time  = datetime.datetime.now()
+filename = 'dhgateproducts_'+ start_time.strftime("%Y-%m-%d %H:%M") +'.txt'
+text_file = open(filename, 'w')
+
+i=0
+while (end==False and i < 3):
 
     if i!=0:
         url = url_base + "-" + '{}'.format(i)
@@ -41,27 +120,31 @@ for i in range(0,1):
 
     url = url + ".html"
 
-    res = requests.get(url);
-    print("retrieving products from page number: " + str(i+1))
+    try:
+        res = requests.get(url)
 
-    soup = bs(res.text,"html.parser")
-    listitem = soup.find_all("div",class_="listitem")
-    for idx, item in enumerate(listitem):
-        
-        # the rest of items are advertisements
-        if idx == 24:
-            break
-        
-        text_file.write('INSERT INTO "CheapHerder_product" (')
+        print("retrieving products from page number: " + str(i+1))
 
-        # product name
-        print (item.select(".pro-title")[0].text)
-        
-        # product image url
-        imageURL = "http:" + getImageURL(item)
-        print (imageURL)
-        
-        # request to product info
-        productURL = "http:" + item.select(".pro-title")[0].find('a').get('href')
-        getProductInfo(productURL)
+        soup = bs(res.text,"html.parser")
+        listitem = soup.find_all("div",class_="listitem")
+        for idx, item in enumerate(listitem):
+            
+            # the rest of items are advertisements
+            if idx == 24:
+                break
+            
+            # request to product info
+            productURL = "http:" + item.select(".pro-title")[0].find('a').get('href')
+            getProductInfo(productURL)
 
+        i = i+1
+
+    except URLError as e:
+	    print ('Got an error code:',e)
+	    end = True
+
+text_file.close()
+end_time = datetime.datetime.now()
+print('donee!!!')
+print('It takes '+str(end_time-start_time))
+print('finished with ' + str((i)*24) + 'products')
