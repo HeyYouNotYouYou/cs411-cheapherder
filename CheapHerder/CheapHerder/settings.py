@@ -36,8 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
-	'CheapHerder'
+    'django.contrib.staticfile',
+    'CheapHerder',
 ]
 
 MIDDLEWARE = [
@@ -78,7 +78,7 @@ DATABASES = {
     'default': {
        	'ENGINE': 'django.db.backends.postgresql_psycopg2',
        	'NAME': 'cheapherder',
-   	'USER': 'admin',
+   	    'USER': 'admin',
         'PASSWORD': 'admin',
         'HOST': '127.0.0.1',
         'PORT': '5432',
@@ -125,3 +125,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR,  'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR,  'CheapHerder/static')]
+
+try:
+  from local_settings import *
+except ImportError:
+  pass

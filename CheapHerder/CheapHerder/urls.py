@@ -15,9 +15,20 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from .views import Index
+from .views import *
 
 urlpatterns = [
     url(r'^$', Index.as_view(), name='index'),
     url(r'^admin/', admin.site.urls),
+    url(r'^supplier/register/$', SupplierFormView.as_view(), name ='supp_register'),
+    url(r'^supplier/login/$', SuppLogin, name ='supp_login'),
+    url(r'^organization/register/$', OrganizationFormView.as_view(), name ='org_register'),
+    url(r'^organization/login/$', OrgLogin, name ='org_login'),
+    url(r'^logout_user/$', logout_user, name='logout_user'),
+    url(r'^supplier/products/$', supplier_products, name ='supplier_products'),
+    url(r'^supplier/create_product/$', create_product, name='create_product'),
+    url(r'^supplier/(?P<product_id>[0-9]+)/delete_product/$', delete_product, name='delete_product'),
+    url(r'^supplier/(?P<product_id>[0-9]+)/$', product_detail, name='product_detail'),
+
+
 ]
