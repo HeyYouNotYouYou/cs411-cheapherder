@@ -2,3 +2,4 @@
 *.pyo
 local_settings.py
 *.DS_Store
+dhgateproducts*
