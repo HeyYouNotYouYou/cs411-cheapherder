@@ -108,13 +108,13 @@ def create_product(request):
         }
         return render(request, 'create_product.html', context)
 def delete_product(request, product_id):
-    product = Product.objects.get(sku=Product_id)
+    product = Product.objects.get(sku=product_id)
     product.delete()
-    products = Product.objects.filter(user=request.user)
+    products = Product.objects.filter(supplier=request.user)
     return render(request, 'supplier_products.html', {'products': products})
 
-# def update_product(request, product_id):
-# 	product = Product.objects.get(pk=Product_id)
+def update_product(request, product_id):
+	return redirect('index')
 
 
 def SuppLogin(request):
@@ -126,9 +126,7 @@ def SuppLogin(request):
 		if user is not None:
 			if user.is_active:
 				login(request, user)
-				products = Product.objects.filter(supplier_id=request.user)
-
-				return render(request, 'supplier_products.html',{'products': products})
+				return redirect('supplier_products')
 			else:
 				return render(request, 'login_supp_form.html', {'error_message': 'Your account has been disabled'})
 		else:

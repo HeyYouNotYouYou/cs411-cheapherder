@@ -29,6 +29,6 @@ urlpatterns = [
     url(r'^supplier/create_product/$', create_product, name='create_product'),
     url(r'^supplier/(?P<product_id>[0-9]+)/delete_product/$', delete_product, name='delete_product'),
     url(r'^supplier/(?P<product_id>[0-9]+)/$', product_detail, name='product_detail'),
-
+    url(r'^supplier/(?P<product_id>[0-9]+)/update_product/$', update_product, name='update_product'),
 
 ]
