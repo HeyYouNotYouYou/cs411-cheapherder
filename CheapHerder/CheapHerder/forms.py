@@ -24,4 +24,4 @@ class ProductForm(forms.ModelForm):
 
 	class Meta:
 		model = Product
-		fields = ['sku','upc']
+		fields = ['item_code','product_name']
