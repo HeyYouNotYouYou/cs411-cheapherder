@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'v8u8r(vk5qfdtcs@6k)mh8v(&my)47e6cu6swcysyhuyhq3-(f'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -36,8 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfile',
-    'CheapHerder',
+    'django.contrib.staticfiles',
+    'CheapHerder'
 ]
 
 MIDDLEWARE = [

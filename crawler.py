@@ -7,7 +7,7 @@ import urllib
 url_base = "https://www.dhgate.com/wholesale/business-industrial/c011"
 
 product_columns = ['item_code', 'product_name', 'category', 'description', 'quantity',
-                    'package_size', 'gross_weight', 'image_url']
+                    'package_size', 'gross_weight', 'image_url','supplier_id_id']
 price_columns = ['quantity','price']
 
 price_id = 1
@@ -24,9 +24,13 @@ def getImageURL(item):
     
     return imageTag[0]
 
+def cleanVal(value):
+    return value.replace('\'','\'\'')
+
+
 def productInsertSQL(value_list):
 
-    text_file.write('INSERT INTO CheapHerder_product (')
+    text_file.write('INSERT INTO public."CheapHerder_product" (')
     str = ''
     for elem in product_columns:
         if str != '':
@@ -42,7 +46,7 @@ def productInsertSQL(value_list):
         if idx != 0:
             text_file.write(', ')
         text_file.write("\'")
-        text_file.write(val)
+        text_file.write(cleanVal(val))
         text_file.write("\'")
 
     text_file.write(');')
@@ -59,8 +63,8 @@ def priceInsertSQL(wprice, item_code):
         
         global price_id
 
-        price_insert = 'INSERT INTO CheapHerder_price ( price_id, quantity, price ) values ( ' + str(price_id) + ', ' + str(quantity) + ', ' + str(price) + ' );\n'
-        product_price_insert = 'INSERT INTO CheapHerder_product_price ( item_code, price_id ) values ( ' + '\'' + str(item_code) + '\'' + ', ' + str(price_id) + ' );\n'
+        price_insert = 'INSERT INTO public."CheapHerder_price" ( price_id, quantity, price ) values ( ' + str(price_id) + ', ' + str(quantity) + ', ' + str(price) + ' );\n'
+        product_price_insert = 'INSERT INTO public."CheapHerder_product_price" ( item_code_id, price_id_id ) values ( ' + '\'' + str(item_code) + '\'' + ', ' + str(price_id) + ' );\n'
         price_id = price_id + 1
 
         text_file.write(price_insert)
@@ -96,7 +100,7 @@ def getProductInfo(url):
     # image_url
     image_url = "http:" + soup.select(".photo-tour")[0].find('img')['src']
     value_list.append(image_url)
-
+    value_list.append('2')
     productInsertSQL(value_list)
 
     wprice = soup.select(".wprice-line")[0].select(".js-wholesale-list")[0].find_all('li')   

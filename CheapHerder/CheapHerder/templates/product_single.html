@@ -1,0 +1,99 @@
+{% extends "base_org.html" %}
+
+{% load static %}
+
+{% block custom_styles %}
+    <link href="{% static 'CheapHerder/tools/productSingle.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block home_active %}active{% endblock %}
+
+{% block content %}
+
+      <div class="row">
+
+        <!--<div class="col-lg-3">-->
+        <!--  <h1 class="my-4">Shop Name</h1>-->
+        <!--  <div class="list-group">-->
+        <!--    <a href="#" class="list-group-item active">Category 1</a>-->
+        <!--    <a href="#" class="list-group-item">Category 2</a>-->
+        <!--    <a href="#" class="list-group-item">Category 3</a>-->
+        <!--  </div>-->
+        <!--</div>-->
+        <!-- /.col-lg-3 -->
+
+        <div class="col-lg-9 offset-lg-3">
+
+          <div class="card mt-4">
+            <img class="card-img-top img-fluid" src="{{object.image_url}}" alt="">
+            <div class="card-body">
+              <h3 class="card-title">{{object.product_name}}</h3>
+              <p class="card-text">{{object.description}}</p>
+              <br />
+              <hr />
+              <br />
+              <div class="row">
+              {% for pp in object.product_price_set.all %}
+                <div class="col-lg-6">
+                  <h5><span style="font-size: 16px;">{{pp.price_id.quantity}} units @</span> ${{pp.price_id.price|floatformat:3}}</h5>
+                </div>
+              {% endfor %}
+              </div>
+            </div>
+          </div>
+          <!-- /.card -->
+
+          <div class="card card-outline-secondary my-4">
+            <div class="card-header">
+              Open groups for this product
+            </div>
+            <div class="card-body">
+              
+              {% for group in groups %}
+                <a href="{% url 'org_group_detail' pk=group.pk %}">{{group.name}}</a>
+                <small class="text-muted">{{group.members.count}} member{{group.members.count|pluralize}}</small>
+                <hr>
+              {% empty %}
+              <p>There are currently no groups for this product</p>
+              {% endfor %}
+              
+              <button type="button" class="btn btn-success" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                Create new group for this product
+              </button>
+            </div>
+          </div>
+          <!-- /.card -->
+
+        </div>
+        <!-- /.col-lg-9 -->
+        
+        <!-- Modal -->
+        <div class="modal" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Create new group!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form action="" method="POST"> {% csrf_token %}
+                  <div class="form-group">
+                    <label>Name of group</label>
+                    <input type="text" class="form-control" name="name"  placeholder="Enter name">
+                    <small  class="form-text text-muted">Choose a descriptive name for your group.</small>
+                  </div>
+                  <input type="hidden" name="product_pk" value = "{{object.pk}}" />
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+      </div>
+        
+      
+
+{% endblock %}

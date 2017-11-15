@@ -1,0 +1,42 @@
+{% extends "base_org.html" %}
+
+{% load static %}
+
+{% block custom_styles %}
+    <link href="{% static 'CheapHerder/tools/groupSingle.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block home_active %}active{% endblock %}
+
+{% block content %}
+  
+  
+      <!-- Jumbotron Header -->
+      <header class="jumbotron my-4">
+       
+      </header>
+      
+      <div class="card card-outline-secondary my-4">
+        <div class="card-header">
+          Members
+        </div>
+        <div class="card-body">
+          <div class="row">
+          {% for member in object.members.all %}
+            <div class="col-md-6">
+              <b>{{member.username}}</b>
+            </div>
+            <div class="col-md-6">
+              <b>Pledged: $416.76</b>
+            </div>
+            <hr>
+          {% empty %}
+          <p>There are currently no members in this group</p>
+          {% endfor %}
+          </div>
+        </div>
+      </div>
+      
+      <br /><br /><br /><br /><br />
+{% endblock %}
+

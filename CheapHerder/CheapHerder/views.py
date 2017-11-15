@@ -1,14 +1,17 @@
-from django.views.generic import TemplateView, View
-from django.shortcuts import render, redirect
+from django.views.generic import TemplateView, View, ListView, DetailView
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-
 from django.contrib.auth.models import *
-from .models import Product
+from .models import *
+from .models import Group as ProdGroup
 from .forms import SupplierForm, OrganizationForm, ProductForm
+
+import random
 
 class Index(TemplateView):
     template_name = "index.html"
-		
+    
+    
 class SupplierFormView(View):
 	form_class = SupplierForm
 	template_name = "registration_supp_form.html"
@@ -108,13 +111,13 @@ def create_product(request):
         }
         return render(request, 'create_product.html', context)
 def delete_product(request, product_id):
-    product = Product.objects.get(sku=Product_id)
+    product = Product.objects.get(sku=product_id)
     product.delete()
-    products = Product.objects.filter(user=request.user)
+    products = Product.objects.filter(supplier=request.user)
     return render(request, 'supplier_products.html', {'products': products})
 
-# def update_product(request, product_id):
-# 	product = Product.objects.get(pk=Product_id)
+def update_product(request, product_id):
+	return redirect('index')
 
 
 def SuppLogin(request):
@@ -126,9 +129,7 @@ def SuppLogin(request):
 		if user is not None:
 			if user.is_active:
 				login(request, user)
-				products = Product.objects.filter(supplier_id=request.user)
-
-				return render(request, 'supplier_products.html',{'products': products})
+				return redirect('supplier_products')
 			else:
 				return render(request, 'login_supp_form.html', {'error_message': 'Your account has been disabled'})
 		else:
@@ -144,7 +145,7 @@ def OrgLogin(request):
 		if user is not None:
 			if user.is_active:
 				login(request, user)
-				return redirect('index')
+				return redirect('org_home')
 			else:
 				return render(request, 'login_org_form.html', {'error_message': 'Your account has been disabled'})
 		else:
@@ -186,6 +187,68 @@ def product_detail(request, product_id):
         user = request.user
         product = get_object_or_404(Product, sku=product_id)
         return render(request, 'product_detail.html', {'product': product, 'user': user})
+
+# home page and top picks - just a random sample - we can implement a better algorithm later
+class OrgHome(TemplateView):
+    template_name = "org_home.html"
+    def get_context_data(self, **kwargs):
+	context = super(OrgHome, self).get_context_data(**kwargs)
+	context["products"] = random.sample(Product.objects.all(), 4)
+	return context
+    
+# Main list of products - simple filtering for search and category selection
+class OrgProducts(ListView):
+    
+    model = Product
+    template_name = "org_products.html"
+    paginate_by = 24 # I love django
+    
+    def get_context_data(self, **kwargs):
+	context = super(OrgProducts, self).get_context_data(**kwargs)
+	context['catgeories'] = Product.objects.order_by("category").values_list("category", flat = True).distinct()
+	context['query'] = self.request.GET.get("q", "")
+	context['category'] = self.request.GET.get("category", "")
+	return context
+    
+    # Filtering and search
+    def get_queryset(self):
+	query = self.request.GET.get("q", None)
+	category = self.request.GET.get("category", None)
+	original = super(OrgProducts, self).get_queryset().order_by("created")
+	if query:
+	    return original.filter(product_name__icontains = query)
+	elif category:
+	    return original.filter(category = category)
+	else:
+	    return original
+    
+# Product detail pages - simple post for creating new groups
+class OrgProductDetail(DetailView):
+    template_name = "product_single.html"
+    model = Product
+    
+    # The input needs to be cleaned before being used in a model creation
+    def post(self, request, **kwargs):
+	name = request.POST.get("name", None)
+	pk = request.POST.get("product_pk", None)
+	if not name or not pk: return redirect(request.get_full_path())
+	g = ProdGroup(name = name, product_id = get_object_or_404(Product, pk = pk))
+	g.save()
+	g.members.add(request.user)
+	return redirect(request.get_full_path())
+    
+    def get_context_data(self, **kwargs):
+	context = super(OrgProductDetail, self).get_context_data(**kwargs)
+	context["groups"] = self.object.group_set.filter(is_open = True)
+	return context
+
+class OrgGroupDetail(DetailView):
+    model = ProdGroup
+    template_name = "group_single.html"
+    
+
+
+'''********** HELPER FUNCTIONS ************ '''
 
 def is_Supplier(user):
     return user.groups.filter(name='Suppliers').exists()
