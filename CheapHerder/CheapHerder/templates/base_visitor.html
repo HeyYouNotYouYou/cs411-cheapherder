@@ -13,7 +13,7 @@
     <script src="{% static 'music/js/main.js' %}"></script>
 </head>
 <body>
-<nav class="navbar navbar-inverse">
+<nav class="navbar navbar-inverse" style="border-radius: 0;">
     <div class="container-fluid">
 
         <!-- Header -->
@@ -30,7 +30,7 @@
         <div class="collapse navbar-collapse" id="topNavBar">
             <ul class="nav navbar-nav">
                 <li class="{% block supp_active %}{% endblock %}"><a href="{% url 'supp_register' %}">Suppliers</a></li>
-                <li class="{% block org_active %}{% endblock %}"><a href="{% url 'org_register' %}">Organizations</a></li>
+                <li class="{% block org_active %}{% endblock %}"><a href="{% url 'org_register' %}">Buyers</a></li>
             </ul>
         </div>
 

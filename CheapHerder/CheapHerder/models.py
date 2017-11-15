@@ -12,9 +12,14 @@ class Product(models.Model):
 	modified = models.DateTimeField(null=True)
 	image_url = models.CharField(max_length=200)
 	supplier_id = models.ForeignKey("auth.User", limit_choices_to={'groups__name': "Suppliers"}, null=True)
-
+	
+	# Max price from possible prices
+	def max_price(self):
+		return self.product_price_set.all().order_by("price_id__price").reverse().first()
+	
 	def __str__(self):
 		return self.item_code + '-' + self.product_name
+
 
 class Price(models.Model):
 	price_id = models.AutoField(primary_key=True) 
@@ -56,7 +61,9 @@ class Group(models.Model):
 	group_id = models.AutoField(primary_key=True)
 	name = models.CharField(max_length=200)
 	product_id = models.ForeignKey(Product)
-	transaction_id = models.ForeignKey(Transaction)
+	transaction_id = models.ForeignKey(Transaction, blank = True, null = True)
+	is_open = models.BooleanField(default = True)
+	members = models.ManyToManyField("auth.User", limit_choices_to={'groups__name':"Organizations"})
 
 class Pledge(models.Model):
 	group_id = models.ForeignKey(Group)

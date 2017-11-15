@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Coming Soon</title>
+<title>Cheap Herder</title>
 <link href="{% static 'CheapHerder/tools/style.css' %}" rel="stylesheet" type="text/css" media="screen" />
 <link href="{% static 'CheapHerder/tools/font-awesome/css/font-awesome.css' %}" type="text/css" rel="stylesheet">
 <script type="text/javascript" src="{% static 'CheapHerder/tools/jquery.min.js' %}"></script> 
@@ -19,22 +19,30 @@
 	<div class="centered">
 		<div class="header">
 			<h1 id="logo">CheapHerder</h1><br />
-			<p class="line1">- Buy in groups. For less. -</p>
+			
 		</div>
-		
-		<div class="content">
-				<p>We are coding, thinking, designing, and working hard. <br />An Awesome app is coming soon. </p>
-		</div>
-		
-		
-		
-
-		
-		<hr />
-		<br />
-		<p style="font-size: 12px; font-family: avenir next;">Arken Ibrahim, Asad Quddus, Hussein Abdullah, Kevin Chang</p>
 	</div>
 </div>
+
+<div class="content" style="background: white;margin: 200px 0px 0px 0px; min-height: 300px;">
+	<a style="background: #93c0ed;" class="button" href="{% url  'org_login' %}">Buyers</a>
+	<a class="button" href="{% url  'supp_login' %}">Suppliers</a>
+	<br /><br /><br />
+	<hr /><br /><br />
+	<span id="howItWorks">How it works</span>
+	<ul>
+		<li>	
+			Form groups with other buyers who want to purhcase the same product.	 	
+		</li>
+		<li>	
+			Pledge a dollar amount for each group signifying how many units of the product you intend to purchase.	 	
+		</li>
+		<li>	
+			Once all members of the group make a pledge, the order is placed and the products are shipped. 	 	
+		</li>
+	</ul>
+</div>
+
 
 	
 	
