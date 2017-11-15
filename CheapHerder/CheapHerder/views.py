@@ -8,7 +8,8 @@ from .forms import SupplierForm, OrganizationForm, ProductForm
 
 class Index(TemplateView):
     template_name = "index.html"
-		
+    
+    
 class SupplierFormView(View):
 	form_class = SupplierForm
 	template_name = "registration_supp_form.html"
