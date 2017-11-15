@@ -117,7 +117,7 @@ filename = 'dhgate/dhgateproducts_'+ start_time.strftime("%Y-%m-%d %H:%M") +'.tx
 text_file = open(filename, 'w')
 
 i=0
-while (end==False or i <2100 ):
+while (end==False or i <5000 ):
 
     if i!=0:
         url = url_base + "-" + '{}'.format(i)
@@ -154,3 +154,4 @@ end_time = datetime.datetime.now()
 print('donee!!!')
 print('It takes '+str(end_time-start_time))
 print('finished with ' + str((i)*24) + 'products')
+print('finished with ' + str( ))
