@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'CheapHerder',
+    'CheapHerder'
 ]
 
 MIDDLEWARE = [
@@ -80,8 +80,8 @@ DATABASES = {
        	'NAME': 'cheapherder',
    	    'USER': 'admin',
         'PASSWORD': 'admin',
-        'HOST': 'localhost',
-        'PORT': '',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 

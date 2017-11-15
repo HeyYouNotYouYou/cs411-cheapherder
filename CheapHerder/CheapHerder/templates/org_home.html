@@ -1,0 +1,50 @@
+{% extends "base_org.html" %}
+
+{% load static %}
+
+{% block custom_styles %}
+    <link href="{% static 'CheapHerder/tools/orgHome.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block home_active %}active{% endblock %}
+
+{% block content %}
+      <!-- Jumbotron Header -->
+      <header class="jumbotron my-4">
+        <h1 class="display-3">Hello, {{request.user}}</h1>
+        <p class="lead">
+          With more than 50k products to offer, you'll be able to find what you are looking for.
+          Search for products or groups and make a pledge when you want to buy. Try to get as many
+          people to join your groups. The more, the cheaper! 
+        </p>
+        <a href="{% url 'org_products' %}" class="btn btn-primary btn-lg">Check out latest products!</a>
+      </header>
+      <br />
+      <div class="row text-center">  
+        <div class="col-sm-12">
+          <h3>Top picks</h3>
+        </div>
+      </div>
+      <br /> <br />
+      <!-- Page Features -->
+      <div class="row text-center">
+        
+        {% for product in products %} 
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card">
+              <img class="card-img-top" src="{{product.image_url}}" alt="">
+              <div class="card-body">
+                <h4 class="card-title">{{product.product_name|truncatechars:80}}</h4>
+                <p class="card-text">{{product.description|truncatechars:120}}</p>
+              </div>
+              <div class="card-footer">
+                <a href="{% url 'org_product_detail' pk=product.pk %}" class="btn btn-primary">Check it out!</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+        
+      </div>
+      <!-- /.row -->
+{% endblock %}
+
