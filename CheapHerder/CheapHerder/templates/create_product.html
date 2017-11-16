@@ -14,40 +14,15 @@
                     {% if error_message %}
                         <p><strong>{{ error_message }}</strong></p>
                     {% endif %}
-                    <form class="form-horizontal" role="form" action="" method="post" enctype="multipart/form-data">
+                   <form class="form-horizontal" role="form" action="" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        {% include 'form_template.html' %}  
-                        {% for form in priceSet %}
-                            <form class="form-vertical" role="form" action="" method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            {% include 'form_template.html' %}  
-                            </form>
-                        {% endfor %}
+                        {% include 'form_template.html' %}
                         <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-10">
-                                {% with num=priceSet.total_form_count|add:"-1" %}
-                                {% if num > 0 %}
-                                <a href="{% url 'create_product'  num %}">
-                                    <span class="glyphicon glyphicon-minus" aria-hidden="true"></span>&nbsp; Remove Price Range
-                                </a>
-                                {% endif %}
-                                {% endwith %}
-
-                               {% with num=priceSet.total_form_count|add:"1" %}
-                                <a href="{% url 'create_product'  num %}">
-                                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp; Add Price Range
-                                </a>
-                                {% endwith %}
-                            </div>
-                        </div>
-                    </form>
-                    <form method="post" enctype="multipart/form-data">
-                    
-                    <div class="form-group">
                             <div class="col-sm-offset-2 col-sm-10">
                                 <button type="submit" class="btn btn-success">Submit</button>
                             </div>
-                    </div>
+                        </div>
+                    </form>
 
                 </div>
             </div>

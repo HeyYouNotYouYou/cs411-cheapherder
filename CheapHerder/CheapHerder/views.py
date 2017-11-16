@@ -91,36 +91,38 @@ class OrganizationFormView(View):
 		return render(request, self.template_name, {'form': form})
 
 
+def create_prices(request, product_id):
+		return redirect('index')
 
-def create_product(request, num_range):
+def create_product(request):
 	if not request.user.is_authenticated():
 		return redirect('index')
 	else:
-		priceSet = formset_factory(PriceForm,max_num=5,extra=int(num_range))
 		form = ProductForm(request.POST or None, request.FILES or None)
 
 		if form.is_valid():
 			product = form.save(commit=False)
 			product.supplier_id = request.user
 			product.save()
-			for price in priceSet.forms:
-				price = form.save(commit=True)
-				product_price = Product_Price(price,product)
-				product_price.save()
-			return redirect('supplier_products')
+
 		context = {
 			"form": form,
-			"priceSet" : priceSet,
 		}
 		return render(request, 'create_product.html', context)
+
 def delete_product(request, product_id):
 	product = Product.objects.get(item_code=product_id)
 	product.delete()
 	return redirect('supplier_products')
 
-def update_product(request, product_id):
-	return redirect('index')
 
+def update_product(request, product_id):
+	instance = get_object_or_404(Product, item_code=product_id)
+	form = ProductForm(request.POST or None, instance=instance)
+	if form.is_valid():
+		form.save()
+		return redirect('supplier_products')
+	return render(request, 'update_product.html', {'form': form})
 
 def SuppLogin(request):
 
