@@ -119,7 +119,8 @@ def create_product(request):
 			product = form.save(commit=False)
 			product.supplier_id = request.user
 			product.save()
-			return redirect('create_prices',product.item_code)
+			return redirect('supplier_products')
+			# return redirect('create_prices',product.item_code)
 
 		context = {
 			"form": form,
