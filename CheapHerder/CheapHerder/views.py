@@ -2,6 +2,7 @@ from django.views.generic import TemplateView, View, ListView, DetailView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import *
+from django.contrib.auth.models import Group as userGroup
 from .models import *
 from .models import Group as ProdGroup
 from .forms import SupplierForm, OrganizationForm, ProductForm, PriceForm
@@ -39,7 +40,7 @@ class SupplierFormView(View):
 			user.save()
 
 			# add user to correct group
-			g = Group.objects.get(name='Suppliers') 
+			g = userGroup.objects.get(name='Suppliers') 
 			g.user_set.add(user)
 
 			# authenticate then login supplier
@@ -77,7 +78,7 @@ class OrganizationFormView(View):
 
 
 			# add user to correct group
-			g = Group.objects.get(name='Organizations') 
+			g = userGroup.objects.get(name='Organizations') 
 			g.user_set.add(user)
 
 			# authenticate then login supplier
@@ -92,7 +93,21 @@ class OrganizationFormView(View):
 
 
 def create_prices(request, product_id):
+	if not request.user.is_authenticated():
 		return redirect('index')
+	else:
+		form = PriceForm(request.POST or None, request.FILES or None)
+
+		if form.is_valid():
+			product = form.save(commit=False)
+			product.supplier_id = request.user
+			product.save()
+			return redirect('supplier_products')
+
+		context = {
+			"form": form,
+		}
+		return render(request, 'create_product.html', context)
 
 def create_product(request):
 	if not request.user.is_authenticated():
@@ -104,6 +119,7 @@ def create_product(request):
 			product = form.save(commit=False)
 			product.supplier_id = request.user
 			product.save()
+			return redirect('create_prices',product.item_code)
 
 		context = {
 			"form": form,
@@ -174,7 +190,7 @@ def supplier_products(request):
 		products = Product.objects.filter(supplier_id=request.user)
 		page = request.GET.get('page', 1)
 		query = request.GET.get("q")
-		paginator = Paginator(products, 2)
+		paginator = Paginator(products, 24)
 
 		if query:
 			products = products.filter(
