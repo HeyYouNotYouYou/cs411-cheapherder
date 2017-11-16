@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django import forms
 
-from .models import Product
+from .models import Product, Product_Price, Price
 
 class SupplierForm(forms.ModelForm):
 	password = forms.CharField(widget=forms.PasswordInput)
@@ -24,4 +24,10 @@ class ProductForm(forms.ModelForm):
 
 	class Meta:
 		model = Product
-		fields = ['item_code','product_name']
+		fields = ['item_code','product_name','description','quantity','package_size','gross_weight','category', 'image_url']
+
+class PriceForm(forms.ModelForm):
+
+	class Meta:
+		model = Price
+		exclude = ('price_id',)

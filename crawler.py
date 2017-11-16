@@ -154,4 +154,4 @@ end_time = datetime.datetime.now()
 print('donee!!!')
 print('It takes '+str(end_time-start_time))
 print('finished with ' + str((i)*24) + 'products')
-print('finished with ' + str( ))
+

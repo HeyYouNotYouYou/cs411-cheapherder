@@ -16,13 +16,20 @@
                     {% endif %}
                     <form class="form-horizontal" role="form" action="" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        {% include 'form_template.html' %}
-                        <div class="form-group">
+                        {% include 'form_template.html' %}  
+                    </form>
+                    <form method="post">
+                        {% csrf_token %}
+                        <table>
+                            {{ priceSet }}
+                        </table>
+                    </form>
+                    <div class="form-group">
                             <div class="col-sm-offset-2 col-sm-10">
                                 <button type="submit" class="btn btn-success">Submit</button>
                             </div>
-                        </div>
-                    </form>
+                    </div>
+
                 </div>
             </div>
         </div>

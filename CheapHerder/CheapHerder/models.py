@@ -1,7 +1,7 @@
 from django.db import models
 
 class Product(models.Model):
-	item_code = models.CharField(max_length=200, primary_key=True)
+	item_code = models.CharField(max_length=200,primary_key=True)
 	product_name = models.CharField(max_length=255)
 	description = models.TextField()
 	quantity = models.CharField(max_length=255)

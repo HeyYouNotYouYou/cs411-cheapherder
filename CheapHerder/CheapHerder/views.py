@@ -4,7 +4,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import *
 from .models import *
 from .models import Group as ProdGroup
-from .forms import SupplierForm, OrganizationForm, ProductForm
+from .forms import SupplierForm, OrganizationForm, ProductForm, PriceForm
+from django.forms.formsets import formset_factory
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 import random
 
@@ -90,31 +92,26 @@ class OrganizationFormView(View):
 
 
 def create_product(request):
-	form = ProductForm(request.POST or None, request.FILES or None)
-	if form.is_valid():
-		product = form.save(commit=False)
-            # album.user = request.user
-            # album.album_logo = request.FILES['album_logo']
-            # file_type = album.album_logo.url.split('.')[-1]
-            # file_type = file_type.lower()
-            # if file_type not in IMAGE_FILE_TYPES:
-            #     context = {
-            #         'album': album,
-            #         'form': form,
-            #         'error_message': 'Image file must be PNG, JPG, or JPEG',
-            #     }
-                return render(request, 'create_product.html', context)
-        	# album.save()
-            # return render(request, 'detail.html', {'album': album})
-        context = {
-            "form": form,
-        }
-        return render(request, 'create_product.html', context)
+	if not request.user.is_authenticated():
+		return redirect('index')
+	else:
+		priceSet = formset_factory(PriceForm,max_num=5,extra=2)
+		form = ProductForm(request.POST or None, request.FILES or None)
+
+		if form.is_valid():
+			product = form.save(commit=False)
+			product.supplier_id = request.user
+			product.save()
+			return redirect('supplier_products')
+		context = {
+			"form": form,
+			"priceSet" : priceSet,
+		}
+		return render(request, 'create_product.html', context)
 def delete_product(request, product_id):
-    product = Product.objects.get(sku=product_id)
-    product.delete()
-    products = Product.objects.filter(supplier=request.user)
-    return render(request, 'supplier_products.html', {'products': products})
+	product = Product.objects.get(item_code=product_id)
+	product.delete()
+	return redirect('supplier_products')
 
 def update_product(request, product_id):
 	return redirect('index')
@@ -168,25 +165,35 @@ def supplier_products(request):
 		return render(request, 'index.html')
 	else:
 		products = Product.objects.filter(supplier_id=request.user)
+		page = request.GET.get('page', 1)
 		query = request.GET.get("q")
+		paginator = Paginator(products, 2)
+
         if query:
             products = products.filter(
                 Q(description__icontains=query) |
                 Q(title__icontains=query)
             ).distinct()
-            
-            return render(request, 'supplier_products.html', {'products': products})
         else:
-            return render(request, 'supplier_products.html', {'products': products})
+			try:
+				products = paginator.page(page)
+			except PageNotAnInteger:
+				users = paginator.page(1)
+			except EmptyPage:
+				users = paginator.page(paginator.num_pages)
+			return render(request, 'supplier_products.html', {'products': products})
+        
+        return render(request, 'supplier_products.html', {'products': products})
 
 
-def product_detail(request, product_id):
+def SuppProductDetail(request, product_id):
     if not request.user.is_authenticated():
-        return render(request, 'index.html')
+        return render(request, 'index')
     else:
         user = request.user
-        product = get_object_or_404(Product, sku=product_id)
+        product = get_object_or_404(Product, pk=product_id)
         return render(request, 'product_detail.html', {'product': product, 'user': user})
+
 
 # home page and top picks - just a random sample - we can implement a better algorithm later
 class OrgHome(TemplateView):
