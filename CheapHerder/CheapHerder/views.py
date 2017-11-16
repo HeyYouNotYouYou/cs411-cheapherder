@@ -7,6 +7,7 @@ from .models import Group as ProdGroup
 from .forms import SupplierForm, OrganizationForm, ProductForm, PriceForm
 from django.forms.formsets import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db.models import Q
 
 import random
 
@@ -91,17 +92,21 @@ class OrganizationFormView(View):
 
 
 
-def create_product(request):
+def create_product(request, num_range):
 	if not request.user.is_authenticated():
 		return redirect('index')
 	else:
-		priceSet = formset_factory(PriceForm,max_num=5,extra=2)
+		priceSet = formset_factory(PriceForm,max_num=5,extra=int(num_range))
 		form = ProductForm(request.POST or None, request.FILES or None)
 
 		if form.is_valid():
 			product = form.save(commit=False)
 			product.supplier_id = request.user
 			product.save()
+			for price in priceSet.forms:
+				price = form.save(commit=True)
+				product_price = Product_Price(price,product)
+				product_price.save()
 			return redirect('supplier_products')
 		context = {
 			"form": form,
@@ -169,21 +174,20 @@ def supplier_products(request):
 		query = request.GET.get("q")
 		paginator = Paginator(products, 2)
 
-        if query:
-            products = products.filter(
-                Q(description__icontains=query) |
-                Q(title__icontains=query)
-            ).distinct()
-        else:
+		if query:
+			products = products.filter(
+				Q(description__icontains=query) |
+				Q(product_name__icontains=query)
+			).distinct()
+		else:
 			try:
 				products = paginator.page(page)
 			except PageNotAnInteger:
-				users = paginator.page(1)
+				products = paginator.page(1)
 			except EmptyPage:
-				users = paginator.page(paginator.num_pages)
+				products = paginator.page(paginator.num_pages)
 			return render(request, 'supplier_products.html', {'products': products})
-        
-        return render(request, 'supplier_products.html', {'products': products})
+		return render(request, 'supplier_products.html', {'products': products})
 
 
 def SuppProductDetail(request, product_id):

@@ -35,7 +35,7 @@
             <ul class="nav navbar-nav">
                 <li class="{% block my_orders %}{% endblock %}"><a href="{% url 'index' %}">&nbsp; Orders</a></li>
             </ul>
-            <form class="navbar-form navbar-left" role="search" method="get" action="{% url 'index' %}">
+            <form class="navbar-form navbar-left" role="search" method="get" action="{% url 'supplier_products' %}">
                 <div class="form-group">
                     <input type="text" class="form-control" name="q" value="{{ request.GET.q }}">
                 </div>
@@ -43,7 +43,7 @@
             </form>
             <ul class="nav navbar-nav navbar-right">
                 <li class ="{% block add_product %}{% endblock %}">
-                    <a href="{% url 'create_product' %}">
+                    <a href="{% url 'create_product' 1 %}">
                         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp; Add Product
                     </a>
                 </li>
