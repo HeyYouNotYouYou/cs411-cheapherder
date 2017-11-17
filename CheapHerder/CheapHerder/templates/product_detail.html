@@ -1,0 +1,49 @@
+{% extends 'base_supplier.html' %}
+{% block title %}Add a New Product{% endblock %}
+{% block add_product %}active{% endblock %}
+
+{% block body %}
+
+<div class="container-fluid songs-container">
+
+    <div class="row">
+
+        <!-- Left Album Info -->
+        <div class="col-sm-4 col-md-3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <a href="{% url 'product_detail' product.item_code %}">
+                        {% if product.image_url %}
+                            <img src="{{ product.image_url }}" class="img-responsive">
+                        {% else %}
+                            <h3>No image to display</h3>
+                        {% endif %}
+                    </a>
+                    <h1>{{ product.product_name }} <!-- <small>{{ product.genre }}</small> --></h1>
+                    <h2>{{ product.description }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-4 col-md-3">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h1>{{ product.product_name }} <!-- <small>{{ product.genre }}</small> --></h1>
+                    <h3>{{ product.description }}</h3>
+                    <div class="row">
+                    {% for pp in product.product_price_set.all %}
+                      <div class="col-lg-6">
+                        <h5><span style="font-size: 16px;">{{pp.price_id.quantity}} units @</span> ${{pp.price_id.price|floatformat:3}}</h5>
+                      </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
