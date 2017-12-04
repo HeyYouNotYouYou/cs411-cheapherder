@@ -290,7 +290,8 @@ class OrgProductDetail(DetailView):
 	price = get_object_or_404(Price, price_id=selected_price_id)
 	payment = Payment(created = datetime.datetime.now(),cc_expiry = '111', cc_number = '111111111', cc_ccv = '123',amount = Decimal(pledge_amt)*price.price)
 	payment.save()
-	g = ProdGroup(name = name, product_id = get_object_or_404(Product, pk = pk))
+	prod_price = Product_Price.objects.get(item_code = pk, price_id = price.price_id)
+	g = ProdGroup(name = name, product_id = get_object_or_404(Product, pk = pk),product_price=prod_price)
 	g.save()
 	g.members.add(request.user)
 	p = Pledge(group_id= g,payment_id=payment,org_id=request.user)
@@ -306,10 +307,26 @@ class OrgGroupDetail(DetailView):
 	model = ProdGroup
 	template_name = "group_single.html"
 
+	def post(self, request, **kwargs):
+		pledge_amt = request.POST.get("pledge",None)
+		pk = request.POST.get("group_pk",None)
+		if not pledge_amt or not pk: return redirect(request.get_full_path())
+
+		g = get_object_or_404(Group,group_id=pk)
+		payment = Payment(created = datetime.datetime.now(),cc_expiry = '111', cc_number = '111111111', cc_ccv = '123',amount = Decimal(pledge_amt))
+		payment.save()
+		p = Pledge(group_id= g,payment_id=payment,org_id=request.user)
+		p.save()
+		return redirect(request.get_full_path())
+
 	def get_context_data(self, **kwargs):
 		context = super(OrgGroupDetail, self).get_context_data(**kwargs)
 		pledges = Pledge.objects.filter(group_id=self.object)
+		allow_pledge = True
+		if self.request.user in self.object.members.all():
+			allow_pledge = False
 		context["pledges"] = pledges
+		context["allow_pledge"] = allow_pledge
 		return context
 
 

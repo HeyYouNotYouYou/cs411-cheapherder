@@ -19,7 +19,12 @@
       <div class="card card-outline-secondary my-4">
         <div class="card-header">
           Members
+          {%if allow_pledge %}
+            <button type="button" class="btn btn-success" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"> Pledge and Join Group</button>
+          {% endif %}
+
         </div>
+
         <div class="card-body">
           <div class="row">
           {% for pledge in pledges.all %}
@@ -36,6 +41,31 @@
           </div>
         </div>
       </div>
+
+      <!-- Modal -->
+        <div class="modal" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+          <div class="modal-dialog" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Pledge to group!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <form action="" method="POST"> {% csrf_token %}
+                  <div>
+                    <label> Pledge Quantity</label>
+                    <input type="number" class="form-control" name="pledge" placeholder="Enter quantity">
+                    <small  class="form-text text-muted">Pledge to buy a quantity at the price of the target.</small>
+                  </div>
+                  <input type="hidden" name="group_pk" value = "{{object.pk}}" />
+                  <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
       
       <br /><br /><br /><br /><br />
 {% endblock %}

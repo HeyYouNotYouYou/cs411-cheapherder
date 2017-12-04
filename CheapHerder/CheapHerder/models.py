@@ -62,6 +62,7 @@ class Group(models.Model):
 	name = models.CharField(max_length=200)
 	product_id = models.ForeignKey(Product)
 	transaction_id = models.ForeignKey(Transaction, blank = True, null = True)
+	product_price = models.ForeignKey(Product_Price)
 	is_open = models.BooleanField(default = True)
 	members = models.ManyToManyField("auth.User", limit_choices_to={'groups__name':"Organizations"})
 
