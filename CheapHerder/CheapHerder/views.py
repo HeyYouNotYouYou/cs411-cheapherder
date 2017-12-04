@@ -8,7 +8,10 @@ from .models import Group as ProdGroup
 from .forms import SupplierForm, OrganizationForm, ProductForm, PriceForm
 from django.forms.formsets import formset_factory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q
+from django.db.models import Q, Max
+from django.utils import timezone
+from decimal import Decimal
+import datetime
 
 import random
 
@@ -97,17 +100,28 @@ def create_prices(request, product_id):
 		return redirect('index')
 	else:
 		form = PriceForm(request.POST or None, request.FILES or None)
-
+		product = Product.objects.get(item_code=product_id)
+		
 		if form.is_valid():
-			product = form.save(commit=False)
-			product.supplier_id = request.user
-			product.save()
-			return redirect('supplier_products')
+			prices = Price.objects.all()
+			price = form.save(commit=False)
+			price.price_id = prices.aggregate(Max('price_id'))['price_id__max'] + 1
+			# price.supplier_id = request.user
+			price.save()
+			pp = Product_Price()
+			pp.price_id = price
+			pp.item_code = product
+			pp.save()
+			if request.POST.get('submit'):
+				return redirect('supplier_products')
+			else:
+				return redirect('create_prices',product.item_code)
 
 		context = {
 			"form": form,
+			"product": product
 		}
-		return render(request, 'create_product.html', context)
+		return render(request, 'create_prices.html', context)
 
 def create_product(request):
 	if not request.user.is_authenticated():
@@ -119,8 +133,8 @@ def create_product(request):
 			product = form.save(commit=False)
 			product.supplier_id = request.user
 			product.save()
-			return redirect('supplier_products')
-			# return redirect('create_prices',product.item_code)
+			# return redirect('supplier_products')
+			return redirect('create_prices',product.item_code)
 
 		context = {
 			"form": form,
@@ -132,6 +146,14 @@ def delete_product(request, product_id):
 	product.delete()
 	return redirect('supplier_products')
 
+def delete_price(request, price_id):
+	product_price = Product_Price.objects.get(price_id=price_id)
+	price = Price.objects.get(price_id=price_id)
+	product = Product.objects.get(item_code=product_price.item_code_id)
+	user = request.user
+	price.delete()
+	product_price.delete()
+	return render(request, 'product_detail.html', {'product': product, 'user': user})
 
 def update_product(request, product_id):
 	instance = get_object_or_404(Product, item_code=product_id)
@@ -261,10 +283,18 @@ class OrgProductDetail(DetailView):
     def post(self, request, **kwargs):
 	name = request.POST.get("name", None)
 	pk = request.POST.get("product_pk", None)
-	if not name or not pk: return redirect(request.get_full_path())
+	pledge_amt = request.POST.get("pledge",None)
+	selected_price_id = request.POST.get("target",None)
+	if not name or not pk or not pledge_amt or not selected_price_id: return redirect(request.get_full_path())
+
+	price = get_object_or_404(Price, price_id=selected_price_id)
+	payment = Payment(created = datetime.datetime.now(),cc_expiry = '111', cc_number = '111111111', cc_ccv = '123',amount = Decimal(pledge_amt)*price.price)
+	payment.save()
 	g = ProdGroup(name = name, product_id = get_object_or_404(Product, pk = pk))
 	g.save()
 	g.members.add(request.user)
+	p = Pledge(group_id= g,payment_id=payment,org_id=request.user)
+	p.save()
 	return redirect(request.get_full_path())
     
     def get_context_data(self, **kwargs):
@@ -273,9 +303,14 @@ class OrgProductDetail(DetailView):
 	return context
 
 class OrgGroupDetail(DetailView):
-    model = ProdGroup
-    template_name = "group_single.html"
-    
+	model = ProdGroup
+	template_name = "group_single.html"
+
+	def get_context_data(self, **kwargs):
+		context = super(OrgGroupDetail, self).get_context_data(**kwargs)
+		pledges = Pledge.objects.filter(group_id=self.object)
+		context["pledges"] = pledges
+		return context
 
 
 '''********** HELPER FUNCTIONS ************ '''

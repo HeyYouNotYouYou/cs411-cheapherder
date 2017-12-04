@@ -84,6 +84,20 @@
                     <input type="text" class="form-control" name="name"  placeholder="Enter name">
                     <small  class="form-text text-muted">Choose a descriptive name for your group.</small>
                   </div>
+                  <div class="form-group">
+                    <label>Group Target</label>
+                    <select class="form-control" id="target" name="target">
+                      {% for pp in object.product_price_set.all %}
+                        <option value="{{ pp.price_id.price_id }}"><span style="font-size: 16px;">{{pp.price_id.quantity}} units @</span> ${{pp.price_id.price|floatformat:3}}</option>
+                      {% endfor %}
+                    </select>
+                    <small  class="form-text text-muted">Choose a price target you would like to buy at.</small>
+                  </div>
+                  <div>
+                    <label> Pledge Quantity</label>
+                    <input type="number" class="form-control" name="pledge" placeholder="Enter quantity">
+                    <small  class="form-text text-muted">Pledge to buy a quantity at the price of the target.</small>
+                  </div>
                   <input type="hidden" name="product_pk" value = "{{object.pk}}" />
                   <button type="submit" class="btn btn-primary">Submit</button>
                 </form>

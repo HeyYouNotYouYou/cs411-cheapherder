@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^supplier/create_product/$', create_product, name='create_product'),
     url(r'^supplier/create_prices/(?P<product_id>[0-9]+)/$', create_prices, name='create_prices'),
     url(r'^supplier/delete_product/(?P<product_id>[0-9]+)/$', delete_product, name='delete_product'),
+    url(r'^supplier/delete_price/(?P<price_id>[0-9]+)/$', delete_price, name='delete_price'),
     url(r'^supplier/products/(?P<product_id>[0-9]+)/$', SuppProductDetail, name='product_detail'),
     url(r'^supplier/(?P<product_id>[0-9]+)/update_product/$', update_product, name='update_product'),
 

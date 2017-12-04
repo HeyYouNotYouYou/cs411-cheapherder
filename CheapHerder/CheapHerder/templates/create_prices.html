@@ -10,7 +10,7 @@
         <div class="col-sm-12 col-md-7">
             <div class="panel panel-default">
                 <div class="panel-body">
-                    <h3>Add a Price for product.product_id</h3>
+                    <h3>Add a Price for {{ product.product_name }} </h3>
                     {% if error_message %}
                         <p><strong>{{ error_message }}</strong></p>
                     {% endif %}
@@ -19,7 +19,9 @@
                         {% include 'form_template.html' %}
                         <div class="form-group">
                             <div class="col-sm-offset-2 col-sm-10">
-                                <button type="submit" class="btn btn-success">Submit</button>
+                                <button type="submit" name="continue" class="btn btn-success">Continue and add another</button>
+                                <button type="submit" name="submit" value='submit' class="btn btn-success">Submit</button>
+
                             </div>
                         </div>
                     </form>

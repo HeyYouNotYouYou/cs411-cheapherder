@@ -22,12 +22,12 @@
         </div>
         <div class="card-body">
           <div class="row">
-          {% for member in object.members.all %}
+          {% for pledge in pledges.all %}
             <div class="col-md-6">
-              <b>{{member.username}}</b>
+              <b>{{pledge.org_id.username}}</b>
             </div>
             <div class="col-md-6">
-              <b>Pledged: $416.76</b>
+              <b>Pledged: {{ pledge.payment_id.amount }}</b>
             </div>
             <hr>
           {% empty %}
