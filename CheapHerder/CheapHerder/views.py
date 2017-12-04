@@ -268,7 +268,9 @@ class OrgProducts(ListView):
 	category = self.request.GET.get("category", None)
 	original = super(OrgProducts, self).get_queryset().order_by("created")
 	if query:
-	    return original.filter(product_name__icontains = query)
+		search = Search_Item(keyword= query,created=datetime.datetime.now(),org_id=self.request.user)
+		search.save()
+		return original.filter(product_name__icontains = query)
 	elif category:
 	    return original.filter(category = category)
 	else:
