@@ -11,6 +11,9 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, Max
 from django.utils import timezone
 from decimal import Decimal
+from django.db import connection
+from settings import *
+
 import datetime
 
 import random
@@ -271,7 +274,11 @@ class OrgProducts(ListView):
 	if query:
 		search = Search_Item(keyword= query,created=datetime.datetime.now(),org_id=self.request.user)
 		search.save()
-		return original.filter(product_name__icontains = query)
+		with connection.cursor() as cursor:
+			cursor.callproc('query_product',[query])
+			prod_dict = create_dict_from_cursor(cursor)
+			p = [make_instance(Product(),item) for item in prod_dict]
+		return p
 	elif category:
 	    return original.filter(category = category)
 	else:
@@ -357,6 +364,8 @@ class OrgGroupDetail(DetailView):
 			# close group
 			self.object.is_open = False
 			self.object.save()
+			self.object.transaction_id.status = "in_progress"
+			self.object.transaction_id.save()
 		else:
 			item_left = self.object.product_price.price_id.quantity - item_total
 
@@ -367,6 +376,34 @@ class OrgGroupDetail(DetailView):
 
 
 '''********** HELPER FUNCTIONS ************ '''
+def make_instance(instance, values):
+
+    attributes = filter(lambda x: not x.startswith('_'), instance.__dict__.keys())
+
+    for a in attributes:
+        try:
+            # field names from oracle sp are UPPER CASE
+            # we want to put PIC_ID in pic_id etc.
+            setattr(instance, a, values[a.upper()])
+            del values[a.upper()]
+        except:
+            pass
+
+    #add any values that are not in the model as well
+    for v in values.keys():
+        setattr(instance, v, values[v])
+        #print 'setting %s to %s' % (v, values[v])
+
+    return instance
+
+def create_dict_from_cursor(cursor):
+    rows = cursor.fetchall()
+    # DEBUG settings (used to) affect what gets returned. 
+    if DEBUG:
+        desc = [item[0] for item in cursor.cursor.description]
+    else:
+        desc = [item[0] for item in cursor.description]
+    return [dict(zip(desc, item)) for item in rows]  
 
 def is_Supplier(user):
     return user.groups.filter(name='Suppliers').exists()

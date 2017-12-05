@@ -20,6 +20,41 @@ class Product(models.Model):
 	def __str__(self):
 		return self.item_code + '-' + self.product_name
 
+	def make_instance(instance, values):
+	    '''
+	    Copied from eviscape.com
+
+	    generates an instance for dict data coming from an sp
+
+	    expects:
+	        instance - empty instance of the model to generate
+	        values -   dictionary from a stored procedure with keys that are named like the
+	                   model's attributes
+	    use like:
+	        evis = InstanceGenerator(Evis(), evis_dict_from_SP)
+
+	    >>> make_instance(Evis(), {'evi_id': '007', 'evi_subject': 'J. Bond, Architect'})
+	    <Evis: J. Bond, Architect>
+
+	    '''
+	    attributes = filter(lambda x: not x.startswith('_'), instance.__dict__.keys())
+
+	    for a in attributes:
+	        try:
+	            # field names from oracle sp are UPPER CASE
+	            # we want to put PIC_ID in pic_id etc.
+	            setattr(instance, a, values[a.upper()])
+	            del values[a.upper()]
+	        except:
+	            pass
+
+	    #add any values that are not in the model as well
+	    for v in values.keys():
+	        setattr(instance, v, values[v])
+	        #print 'setting %s to %s' % (v, values[v])
+
+	    return instance
+
 class top_product(models.Model):
 	item_code = models.CharField(max_length=200,primary_key=True)
 	product_name = models.CharField(max_length=255)
@@ -29,7 +64,7 @@ class top_product(models.Model):
 	class Meta:
 			managed = False
 			db_table='top_prod'
-			
+
 class Price(models.Model):
 	price_id = models.AutoField(primary_key=True) 
 	price = models.DecimalField(max_digits=10, decimal_places=5)
