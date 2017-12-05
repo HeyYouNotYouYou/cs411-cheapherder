@@ -72,6 +72,14 @@ class Pledge(models.Model):
 	payment_id = models.ForeignKey(Payment)
 
 
+class PaymentGroupPledge(models.Model):
+	username = models.CharField(max_length=200)
+	amount_pledged = models.DecimalField(max_digits=10, decimal_places=5)
+	time_pledged = models.DateTimeField()
 
+	class Meta:
+		managed = False
 
+	def __str__(self):
+		return str(self.username) + ' amount: ' + str(self.amount_pledged) + ' )'
 

@@ -19,20 +19,23 @@
       <div class="card card-outline-secondary my-4">
         <div class="card-header">
           Members
-          {%if allow_pledge %}
-            <button type="button" class="btn btn-success" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"> Pledge and Join Group</button>
-          {% endif %}
+          {% if allow_pledge %}
+            <button type="button" class="btn btn-success" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"> Pledge to Group</button>
+            <span class="float-sm-right"><label> At least {{items_left}} pledges required to reach target</label></span>
+          {% else %}
+           <span class="float-sm-right"> <label> Target Reached !!</label> </span>
 
+          {% endif %}
         </div>
 
         <div class="card-body">
           <div class="row">
-          {% for pledge in pledges.all %}
+          {% for pmt_pledge in pmt_pledges %}
             <div class="col-md-6">
-              <b>{{pledge.org_id.username}}</b>
+              <b>{{pmt_pledge.username}}</b>
             </div>
             <div class="col-md-6">
-              <b>Pledged: {{ pledge.payment_id.amount }}</b>
+              <b>Pledged: $ {{ pmt_pledge.amount_pledged }} </b>
             </div>
             <hr>
           {% empty %}

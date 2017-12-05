@@ -215,6 +215,7 @@ def supplier_products(request):
 		query = request.GET.get("q")
 		paginator = Paginator(products, 24)
 
+
 		if query:
 			products = products.filter(
 				Q(description__icontains=query) |
@@ -293,11 +294,22 @@ class OrgProductDetail(DetailView):
 	payment = Payment(created = datetime.datetime.now(),cc_expiry = '111', cc_number = '111111111', cc_ccv = '123',amount = Decimal(pledge_amt)*price.price)
 	payment.save()
 	prod_price = Product_Price.objects.get(item_code = pk, price_id = price.price_id)
-	g = ProdGroup(name = name, product_id = get_object_or_404(Product, pk = pk),product_price=prod_price)
+
+	# create a transaction with status pending, when the target of the group is reached we will change the status to in_progress
+	# and order the items from the supplier, also we will close the group
+	transaction = Transaction(amount = price.quantity*price.price,quantity=price.quantity,status='pending')
+	transaction.save()
+
+
+	g = ProdGroup(name = name, product_id = get_object_or_404(Product, pk = pk),product_price=prod_price,transaction_id = transaction)
 	g.save()
 	g.members.add(request.user)
+
 	p = Pledge(group_id= g,payment_id=payment,org_id=request.user)
 	p.save()
+
+
+	
 	return redirect(request.get_full_path())
     
     def get_context_data(self, **kwargs):
@@ -315,7 +327,7 @@ class OrgGroupDetail(DetailView):
 		if not pledge_amt or not pk: return redirect(request.get_full_path())
 
 		g = get_object_or_404(Group,group_id=pk)
-		payment = Payment(created = datetime.datetime.now(),cc_expiry = '111', cc_number = '111111111', cc_ccv = '123',amount = Decimal(pledge_amt))
+		payment = Payment(created = datetime.datetime.now(),cc_expiry = '111', cc_number = '111111111', cc_ccv = '123',amount = Decimal(pledge_amt)*g.product_price.price_id.price)
 		payment.save()
 		p = Pledge(group_id= g,payment_id=payment,org_id=request.user)
 		p.save()
@@ -324,10 +336,32 @@ class OrgGroupDetail(DetailView):
 	def get_context_data(self, **kwargs):
 		context = super(OrgGroupDetail, self).get_context_data(**kwargs)
 		pledges = Pledge.objects.filter(group_id=self.object)
+		
+		pmtPledges = PaymentGroupPledge.objects.raw('''select auth_user.id, auth_user.username,"CheapHerder_payment".amount as amount_pledged,"CheapHerder_payment".created
+			from auth_user 
+			join "CheapHerder_pledge" on auth_user.id="CheapHerder_pledge".org_id_id 
+			join "CheapHerder_payment" on "CheapHerder_pledge".payment_id_id = "CheapHerder_payment".payment_id 
+			where "CheapHerder_pledge".group_id_id=%s
+			''',[self.object.group_id])
+
+		# get all the payments for the group so that we compute how much is remaining from the target
+		item_total = 0
+		item_left = 0
 		allow_pledge = True
-		if self.request.user in self.object.members.all():
+		for pledge in pledges:
+			item_total = item_total + (pledge.payment_id.amount/self.object.product_price.price_id.price)
+
+		if item_total > self.object.product_price.price_id.quantity:
 			allow_pledge = False
-		context["pledges"] = pledges
+			item_left = 0
+			# close group
+			self.object.is_open = False
+			self.object.save()
+		else:
+			item_left = self.object.product_price.price_id.quantity - item_total
+
+		context["pmt_pledges"] = pmtPledges
+		context["items_left"] = item_left
 		context["allow_pledge"] = allow_pledge
 		return context
 
