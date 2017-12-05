@@ -246,7 +246,7 @@ class OrgHome(TemplateView):
     template_name = "org_home.html"
     def get_context_data(self, **kwargs):
 	context = super(OrgHome, self).get_context_data(**kwargs)
-	context["products"] = random.sample(Product.objects.all(), 4)
+	context["products"] = top_product.objects.all()
 	return context
     
 # Main list of products - simple filtering for search and category selection
