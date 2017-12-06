@@ -324,7 +324,8 @@ class OrgProductDetail(DetailView):
         p = Pledge(group_id=g, payment_id=payment, org_id=request.user)
         p.save()
 
-        return redirect(request.get_full_path())
+	p = Pledge(group_id= g,payment_id=payment,org_id=request.user,is_owner = True)
+	p.save()
 
     def get_context_data(self, **kwargs):
         context = super(OrgProductDetail, self).get_context_data(**kwargs)
