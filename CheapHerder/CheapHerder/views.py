@@ -312,7 +312,7 @@ class OrgProductDetail(DetailView):
 	g.save()
 	g.members.add(request.user)
 
-	p = Pledge(group_id= g,payment_id=payment,org_id=request.user)
+	p = Pledge(group_id= g,payment_id=payment,org_id=request.user,is_owner = True)
 	p.save()
 
 
