@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'CheapHerder'
 ]
 
@@ -86,6 +87,20 @@ DATABASES = {
 }
 
 
+# Channels settings
+
+# In settings.py
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)],
+        },
+        "ROUTING": "CheapHerder.routing.channel_routing",
+    },
+}
+
+
 # Password validation
 # https://docs.djangoproject.com/en/1.11/ref/settings/#auth-password-validators
 
@@ -127,6 +142,6 @@ STATIC_ROOT = os.path.join(BASE_DIR,  'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR,  'CheapHerder/static')]
 
 try:
-  from local_settings import *
+    from .local_settings import *
 except ImportError:
-  pass
+    pass

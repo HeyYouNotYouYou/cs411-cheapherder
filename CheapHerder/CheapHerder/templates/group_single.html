@@ -15,35 +15,107 @@
       <header class="jumbotron my-4">
        
       </header>
-      
-      <div class="card card-outline-secondary my-4">
-        <div class="card-header">
-          Members
-          {% if allow_pledge %}
-            <button type="button" class="btn btn-success" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"> Pledge to Group</button>
-            <span class="float-sm-right"><label> At least {{items_left}} pledges required to reach target</label></span>
-          {% else %}
-           <span class="float-sm-right"> <label> Target Reached !!</label> </span>
+      <div class="row">
+        <div class="col-md-8">
+          <div class="card card-outline-secondary">
+            <div class="card-header">
+              Members
+              {% if allow_pledge %}
+                <button type="button" class="btn btn-success" type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal"> Pledge to Group</button>
+                <span class="float-sm-right"><label> At least {{items_left}} pledges required to reach target</label></span>
+              {% else %}
+               <span class="float-sm-right"> <label> Target Reached !!</label> </span>
 
-          {% endif %}
-        </div>
+              {% endif %}
+            </div>
 
-        <div class="card-body">
-          <div class="row">
-          {% for pmt_pledge in pmt_pledges %}
-            <div class="col-md-6">
-              <b>{{pmt_pledge.username}}</b>
+            <div class="card-body">
+              <div class="row">
+              {% for pmt_pledge in pmt_pledges %}
+                <div class="col-md-6">
+                  <b>{{pmt_pledge.username}}</b>
+                </div>
+                <div class="col-md-6">
+                  <b>Pledged: $ {{ pmt_pledge.amount_pledged }} </b>
+                </div>
+                <hr>
+              {% empty %}
+              <p>There are currently no members in this group</p>
+              {% endfor %}
+              </div>
             </div>
-            <div class="col-md-6">
-              <b>Pledged: $ {{ pmt_pledge.amount_pledged }} </b>
-            </div>
-            <hr>
-          {% empty %}
-          <p>There are currently no members in this group</p>
-          {% endfor %}
           </div>
         </div>
+
+
+
+        <div class="col-md-4">
+          <div class="card card-outline-secondary">
+            <div class="card-header">
+              Live, real-time chat with your groups
+            </div>
+
+            <div class="card-body">
+              <div class="board">
+              </div> <br /> <hr />
+              <textarea class="form-control send-content"></textarea><br />
+              <button class="btn btn-primary send">Send message</button>
+            </div>
+          </div>
+        </div>
+
       </div>
+
+      <style>
+
+        .message-box{
+          background: #29ed70;
+          border-radius: 10px;
+          padding: 5px 10px;
+          width: auto;
+          display: inline-block;
+          margin-top: 4px;
+        }
+      .writer{
+        font-size: 12px;
+        color: gray;
+      }
+
+
+      </style>
+
+      <script>
+
+        // Note that the path doesn't matter right now; any WebSocket
+        // connection gets bumped over to WebSocket consumers
+        socket = new WebSocket("ws://" + window.location.host + "/{{  object.pk }}/");
+        socket.onmessage = function(e) {
+          var json = JSON.parse(e.data);
+          var message = json["text"];
+          var username = json["username"];
+
+          var inject = '<div class="outer-box"><span class="writer">'+username+'</span><br /><div class="message-box">' + message + '</div></div><br />'
+          $(".board").append(inject);
+
+        }
+        socket.onopen = function() {
+
+          $(document).ready(function() {
+            $(".send").click(function(){
+              var val = $(".send-content").val();
+              socket.send(val);
+              $(".send-content").val("");
+            });
+          });
+
+        }
+        // Call onopen directly if socket is already open
+        if (socket.readyState == WebSocket.OPEN) socket.onopen();
+
+
+
+
+      </script>
 
       <!-- Modal -->
         <div class="modal" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
