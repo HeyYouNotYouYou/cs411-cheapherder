@@ -313,7 +313,7 @@ class OrgProductDetail(DetailView):
 
         price = get_object_or_404(Price, price_id=selected_price_id)
         payment = Payment(created=datetime.datetime.now(), cc_expiry='111', cc_number='111111111', cc_ccv='123',
-                          amount=Decimal(pledge_amt) * price.price,status="pending")
+                          amount=Decimal(pledge_amt) * price.price,status='pending')
         payment.save()
         prod_price = Product_Price.objects.get(item_code=pk, price_id=price.price_id)
 
@@ -350,7 +350,7 @@ class OrgGroupDetail(DetailView):
 
         g = get_object_or_404(Group, group_id=pk)
         payment = Payment(created=datetime.datetime.now(), cc_expiry='111', cc_number='111111111', cc_ccv='123',
-                          amount=Decimal(pledge_amt) * g.product_price.price_id.price,status="pending")
+                          amount=Decimal(pledge_amt) * g.product_price.price_id.price,status='pending')
         payment.save()
         p = Pledge(group_id=g, payment_id=payment, org_id=request.user)
         p.save()
