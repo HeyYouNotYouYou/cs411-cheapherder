@@ -14,6 +14,8 @@ class Product(models.Model):
     image_url = models.CharField(max_length=200)
     supplier_id = models.ForeignKey("auth.User", limit_choices_to={'groups__name': "Suppliers"}, null=True)
 
+    def max_price(self):
+        return self.product_price_set.all().order_by("price_id__price").reverse().first()
 
 class top_product(models.Model):
     item_code = models.CharField(max_length=200, primary_key=True)
