@@ -254,6 +254,89 @@ def SuppProductDetail(request, product_id):
         user = request.user
         product = get_object_or_404(Product, pk=product_id)
         return render(request, 'product_detail.html', {'product': product, 'user': user})
+ 
+
+from itertools import chain, combinations
+
+def list_powerset(lst):
+    result = [[]]
+    for x in lst:
+        result.extend([subset + [x] for subset in result])
+    return result
+
+def patterns(user_records, keywords, n):
+    lis_word_count = []
+    combos = list_powerset(keywords)
+    combos = [x for x in combos if len(x) == n]
+    for word in combos:
+        count = 0
+        Word = set(word)
+        for record in user_records:
+            Record = set(record)
+            if Word.issubset(record):
+                count += 1
+        lis_word_count.append((word, count))
+    return lis_word_count
+
+def recommend_keywords(request, support, num_keywords):
+    individual_words = []
+    # user_search_keywords=["Black Pencil", "Blue Pencil", "Fried Chicken", "Fried Peanuts", "Black Chair", "Chair Black"]
+    user_records = []
+    user_search_keywords = Search_Item.objects.filter(org_id=request.user)
+    if not (user_search_keywords):
+        user_search_keywords = Search_Item.objects.all()
+    for record in user_search_keywords:
+        temp = record.keyword
+        words = temp.split(" ")
+        for i in words:
+            if i in individual_words:
+                continue
+            individual_words.append(i)
+        user_records.append(words) 
+
+    lis_word_count = []
+    for word in individual_words:
+        count = 0
+        Word = set([word])
+        for record in user_records:
+            Record = set(record)
+            if Word.issubset(record):
+                count += 1
+        lis_word_count.append((word, count))
+
+    # support and num_keywords will be another argument passed in
+    # support=2
+    ##num_keywords=3
+    ##
+
+    n = 2
+    frequent_patterns_len_n_minus_one = []
+    frequent_patterns_len_n = [x[0] for x in lis_word_count if x[1] >= support]
+    keywords = frequent_patterns_len_n
+
+    if not (frequent_patterns_len_n):
+        lis = []
+        return lis
+        ## do something about this edge case later where keyword record with only one word do not meet the support requirement
+
+    while (n <= num_keywords):
+        lis = patterns(user_records, keywords, n)
+        lis = [x[0] for x in lis if x[1] >= support]
+        if not (lis):
+            break
+        frequent_patterns_len_n_minus_one = frequent_patterns_len_n
+        frequent_patterns_len_n = lis
+        n += 1
+        keywords = []
+        for i in lis:
+            for j in i:
+                if j in keywords:
+                    continue
+                keywords.append(j)
+    return frequent_patterns_len_n
+
+
+
 
 
 # home page and top picks - just a random sample - we can implement a better algorithm later
@@ -263,7 +346,33 @@ class OrgHome(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(OrgHome, self).get_context_data(**kwargs)
         context["products"] = top_product.objects.all()
+        result = recommend_keywords(self.request, 2, 2)
+
+        suggested = []
+
+        if len(result):
+            if isinstance(result[0], str):
+                for word in result:
+                    query = word
+                    result = Product.objects.filter(product_name__icontains=query)
+                    result2 = Product.objects.filter(description__icontains=query)
+                    for res in result: suggested.append(res)
+                    for res in result2: suggested.append(res)
+            else:
+                # is a list
+                for embed_list in result:
+                    query = " ".join(embed_list)
+                    result = Product.objects.filter(product_name__icontains = query)
+                    result2 = Product.objects.filter(description__icontains=query)
+                    for res in result: suggested.append(res)
+                    for res in result2: suggested.append(res)
+
+
+        context["suggested"] = suggested[:4]
+
+
         return context
+
 
 
 # Main list of products - simple filtering for search and category selection

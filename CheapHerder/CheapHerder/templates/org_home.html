@@ -46,5 +46,31 @@
         
       </div>
       <!-- /.row -->
+      
+      
+       <div class="row text-center">
+        <div class="col-sm-12">
+          <h3>Recommended products!</h3>
+        </div>
+      </div> <br />
+      <div class="row text-center">
+
+        {% for product in suggested %}
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card">
+              <img class="card-img-top" src="{{product.image_url}}" alt="">
+              <div class="card-body">
+                <h4 class="card-title">{{product.product_name|truncatechars:80}}</h4>
+                <p class="card-text">{{product.description|truncatechars:120}}</p>
+              </div>
+              <div class="card-footer">
+                <a href="{% url 'org_product_detail' pk=product.pk %}" class="btn btn-primary">Check it out!</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+
+      </div>   
+      
 {% endblock %}
 
