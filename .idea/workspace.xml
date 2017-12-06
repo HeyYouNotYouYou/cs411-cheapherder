@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="ac7835d5-8d03-442f-8d51-bb4466e50bf7" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CheapHerder/dump.rdb" afterPath="$PROJECT_DIR$/CheapHerder/dump.rdb" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CheapHerder/CheapHerder/consumers.py" afterPath="$PROJECT_DIR$/CheapHerder/CheapHerder/consumers.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CheapHerder/CheapHerder/views.py" afterPath="$PROJECT_DIR$/CheapHerder/CheapHerder/views.py" />
     </list>
     <ignored path="project.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -47,13 +47,26 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="consumers.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="consumers.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/CheapHerder/CheapHerder/consumers.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="375">
               <caret line="36" column="75" selection-start-line="36" selection-start-column="75" selection-end-line="36" selection-end-column="75" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/CheapHerder/CheapHerder/views.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="285">
+              <caret line="325" column="48" selection-start-line="325" selection-start-column="48" selection-end-line="325" selection-end-column="48" />
+              <folding>
+                <element signature="e#0#73#0" expanded="true" />
+                <marker date="1512564387000" expanded="true" signature="12882:13243" ph="select auth_... auth_user" />
               </folding>
             </state>
           </provider>
@@ -123,11 +136,11 @@
         <option value="$PROJECT_DIR$/CheapHerder/CheapHerder/settings.py" />
         <option value="$PROJECT_DIR$/CheapHerder/CheapHerder/routing.py" />
         <option value="$PROJECT_DIR$/CheapHerder/CheapHerder/templates/base_org.html" />
-        <option value="$PROJECT_DIR$/CheapHerder/CheapHerder/views.py" />
         <option value="$PROJECT_DIR$/CheapHerder/CheapHerder/models.py" />
         <option value="$PROJECT_DIR$/CheapHerder/CheapHerder/templates/group_single.html" />
         <option value="$PROJECT_DIR$/CheapHerder/CheapHerder/asgi.py" />
         <option value="$PROJECT_DIR$/CheapHerder/CheapHerder/consumers.py" />
+        <option value="$PROJECT_DIR$/CheapHerder/CheapHerder/views.py" />
       </list>
     </option>
   </component>
@@ -514,17 +527,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CheapHerder/CheapHerder/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-413">
-          <caret line="322" column="0" selection-start-line="322" selection-start-column="0" selection-end-line="322" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#73#0" expanded="true" />
-            <marker date="1512559767000" expanded="true" signature="12833:13194" ph="select auth_... auth_user" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/CheapHerder/CheapHerder/settings.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="216">
@@ -565,6 +567,17 @@
           <caret line="36" column="75" selection-start-line="36" selection-start-column="75" selection-end-line="36" selection-end-column="75" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CheapHerder/CheapHerder/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="285">
+          <caret line="325" column="48" selection-start-line="325" selection-start-column="48" selection-end-line="325" selection-end-column="48" />
+          <folding>
+            <element signature="e#0#73#0" expanded="true" />
+            <marker date="1512564387000" expanded="true" signature="12882:13243" ph="select auth_... auth_user" />
           </folding>
         </state>
       </provider>
