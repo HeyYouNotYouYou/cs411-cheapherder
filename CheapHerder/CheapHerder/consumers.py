@@ -34,13 +34,13 @@ def ws_message(message, group_pk):
     # both have a "text" key for their textual data.
 
     group_object = PGroup.objects.get(pk=group_pk)
-    mess = Message(text = message["text"], username = message.user.username[0], group=group_object)
+    mess = Message(text = message["text"], username = message.user.username, group=group_object)
     mess.save()
 
     Group("id-%s" % group_pk).send({
         "text": json.dumps({
             "text": message["text"],
-            "username": message.user.username[0],
+            "username": message.user.username,
         }),
     })
 
