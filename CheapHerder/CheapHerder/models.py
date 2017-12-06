@@ -96,5 +96,5 @@ class PaymentGroupPledge(models.Model):
 
 class Message(models.Model):
     username = models.CharField(max_length=1024)
-    text = models.TextField
+    text = models.TextField(default = '')
     group = models.ForeignKey(Group)

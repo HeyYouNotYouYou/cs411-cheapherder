@@ -13,7 +13,7 @@
   
       <!-- Jumbotron Header -->
       <header class="jumbotron my-4">
-       
+       <h1>{{ object.name }}</h1>
       </header>
       <div class="row">
         <div class="col-md-8">
@@ -56,10 +56,17 @@
             </div>
 
             <div class="card-body">
-              <div class="board">
-              </div> <br /> <hr />
               <textarea class="form-control send-content"></textarea><br />
-              <button class="btn btn-primary send">Send message</button>
+              <button class="btn btn-primary send">Send message</button> <br /> <hr />
+              <div class="board">
+                {% for message in object.message_set.all %}
+                  <div class="outer-box">
+                    <span class="writer">{{ message.username }}</span><br />
+                    <div class="message-box">{{ message.text }}</div>
+                  </div><br />
+                {% endfor %}
+              </div>
+
             </div>
           </div>
         </div>
@@ -67,7 +74,6 @@
       </div>
 
       <style>
-
         .message-box{
           background: #29ed70;
           border-radius: 10px;
@@ -76,12 +82,14 @@
           display: inline-block;
           margin-top: 4px;
         }
-      .writer{
-        font-size: 12px;
-        color: gray;
-      }
-
-
+        .writer{
+          font-size: 12px;
+          color: gray;
+        }
+        .board{
+          overflow-y: scroll;
+          max-height: 400px;
+        }
       </style>
 
       <script>
@@ -93,9 +101,8 @@
           var json = JSON.parse(e.data);
           var message = json["text"];
           var username = json["username"];
-
           var inject = '<div class="outer-box"><span class="writer">'+username+'</span><br /><div class="message-box">' + message + '</div></div><br />'
-          $(".board").append(inject);
+          $(".board").prepend(inject);
 
         }
         socket.onopen = function() {

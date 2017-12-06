@@ -4,7 +4,7 @@ from channels import Channel, Group
 from channels.sessions import channel_session
 from channels.auth import channel_session_user, channel_session_user_from_http
 
-from .models import Group as PGroup
+from .models import Group as PGroup, Message
 
 
 # consumers that handle websocket connection/disconnection/receive channels
@@ -24,17 +24,27 @@ def ws_connect(message, group_pk):
     Group("id-%s" % group_object.pk).add(message.reply_channel)
 
 
+
+
+
 # dummy consumer for handling ws_messages
 @channel_session_user
 def ws_message(message, group_pk):
     # ASGI WebSocket packet-received and send-packet message types
     # both have a "text" key for their textual data.
+
+    group_object = PGroup.objects.get(pk=group_pk)
+    mess = Message(text = message["text"], username = message.user.username[0], group=group_object)
+    mess.save()
+
     Group("id-%s" % group_pk).send({
         "text": json.dumps({
             "text": message["text"],
             "username": message.user.username[0],
         }),
     })
+
+
 
 
 # dummy consumer for handling ws_messages
