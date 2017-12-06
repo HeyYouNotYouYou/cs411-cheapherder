@@ -48,12 +48,19 @@
               Open groups for this product
             </div>
             <div class="card-body">
-              
-              {% for group in groups %}
-                <a href="{% url 'org_group_detail' pk=group.pk %}">{{group.name}}</a>
-                <small class="text-muted">{{group.members.count}} member{{group.members.count|pluralize}}</small>
-                <hr>
-              {% empty %}
+             {% for group in owners %}
+              <a href="{% url 'org_group_detail' pk=group.0.pk %}">{{group.0.name}}</a>
+              <small class="text-muted">{{group.0.members.count}} member{{group.0.members.count|pluralize}}</small>
+              {%if group.1 %}
+                <form action="{% url 'delete_group' group_id=group.0.group_id %}" method="post" style="display: inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="group_id" value="{{ group.0.group_id }}" />
+                  <button type="submit" class="btn btn-default btn-sm" style="float:right">
+                       <!-- <input type="image" src="http://example.com/path/to/image.png" /> -->
+                      <b>x</b>
+                  </button>
+                </form>
+              {%endif%}
               <p>There are currently no groups for this product</p>
               {% endfor %}
               
