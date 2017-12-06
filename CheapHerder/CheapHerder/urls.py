@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^organization/products/$', OrgProducts.as_view(), name ='org_products'),
     url(r'^organization/products/(?P<pk>[0-9]+)/$', OrgProductDetail.as_view(), name ='org_product_detail'),
     url(r'^organization/groups/(?P<pk>[0-9]+)/$', OrgGroupDetail.as_view(), name ='org_group_detail'),
+    url(r'^organization/delete_group/(?P<group_id>[0-9]+)/$', delete_group, name='delete_group'),
     url(r'^logout_user/$', logout_user, name='logout_user'),
     url(r'^supplier/products/$', supplier_products, name ='supplier_products'),
     url(r'^supplier/create_product/$', create_product, name='create_product'),
