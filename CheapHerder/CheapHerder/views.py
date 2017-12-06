@@ -153,6 +153,12 @@ def delete_product(request, product_id):
     return redirect('supplier_products')
 
 
+def delete_group(request, group_id):
+       g = ProdGroup.objects.get(group_id=group_id)
+       prod = g.product_id
+       g.delete()
+       return redirect('org_product_detail',pk=prod.item_code)
+
 def delete_price(request, price_id):
     product_price = Product_Price.objects.get(price_id=price_id)
     price = Price.objects.get(price_id=price_id)
@@ -307,7 +313,7 @@ class OrgProductDetail(DetailView):
 
         price = get_object_or_404(Price, price_id=selected_price_id)
         payment = Payment(created=datetime.datetime.now(), cc_expiry='111', cc_number='111111111', cc_ccv='123',
-                          amount=Decimal(pledge_amt) * price.price)
+                          amount=Decimal(pledge_amt) * price.price,status="pending")
         payment.save()
         prod_price = Product_Price.objects.get(item_code=pk, price_id=price.price_id)
 
@@ -326,9 +332,11 @@ class OrgProductDetail(DetailView):
         return redirect(request.get_full_path())
 
     def get_context_data(self, **kwargs):
-        context = super(OrgProductDetail, self).get_context_data(**kwargs)
-        context["groups"] = self.object.group_set.filter(is_open=True)
-        return context
+		context = super(OrgProductDetail, self).get_context_data(**kwargs)
+		grps = self.object.group_set.filter(is_open = True)
+		context["groups"] = grps
+		context["owners"] = getDictFor(grps,self.request)
+		return context
 
 
 class OrgGroupDetail(DetailView):
@@ -342,7 +350,7 @@ class OrgGroupDetail(DetailView):
 
         g = get_object_or_404(Group, group_id=pk)
         payment = Payment(created=datetime.datetime.now(), cc_expiry='111', cc_number='111111111', cc_ccv='123',
-                          amount=Decimal(pledge_amt) * g.product_price.price_id.price)
+                          amount=Decimal(pledge_amt) * g.product_price.price_id.price,status="pending")
         payment.save()
         p = Pledge(group_id=g, payment_id=payment, org_id=request.user)
         p.save()
@@ -415,6 +423,21 @@ def create_dict_from_cursor(cursor):
         desc = [item[0] for item in cursor.description]
     return [dict(zip(desc, item)) for item in rows]
 
+def getDictFor(ProdGroup,request):
+       pled = Pledge.objects.all()
+       dictList = []
+       for grp in ProdGroup:
+               it_list = [grp]
+               p = pled.filter(group_id= grp.group_id)
+               for i in p:
+                       if i.is_owner:
+                               if i.org_id == request.user:
+                                       it_list.append(True)
+               if len(it_list) < 2:
+                       it_list.append(False)
+               dictList.append(it_list)
+
+       return dictList
 
 def is_Supplier(user):
     return user.groups.filter(name='Suppliers').exists()

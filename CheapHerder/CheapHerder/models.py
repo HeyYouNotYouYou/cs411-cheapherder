@@ -58,7 +58,7 @@ class Payment(models.Model):
     cc_number = models.CharField(max_length=200)
     cc_ccv = models.CharField(max_length=200)
     amount = models.DecimalField(max_digits=10, decimal_places=5)
-
+    status = models.CharField(max_length=200)
 
 class Search_Item(models.Model):
     search_id = models.AutoField(primary_key=True)
@@ -80,7 +80,7 @@ class Group(models.Model):
 class Pledge(models.Model):
 	group_id = models.ForeignKey(Group)
 	org_id = models.ForeignKey("auth.User", limit_choices_to={'groups__name':"Organizations"})
-	payment_id = models.ForeignKey(Payment)
+	payment_id = models.ForeignKey(Payment,on_delete=models.CASCADE)
 	is_owner = models.BooleanField(default = False)
 
 class PaymentGroupPledge(models.Model):
