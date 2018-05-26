@@ -11,6 +11,6 @@ The application has two perspectives. One perspective is the seller’s side whi
 
 Aside from the main feature of allowing multiple users to place one order, other advance functions that we implemented in this project were a live-chat feature which allowed users from the buyer’s perspective to communicate with one another (Especially useful for users who are involved in the same group order for a product). We also implemented a recommendation feature that looked at a user’s search history and mined frequent words that the user searched for. Then the function would take these frequent words and find products that had these words in the product description.
 
-Though it may be confusing to navigate through the different files and code of this project, the essential core functionality lies within the views.py file. The file can be found at the path: CheapHerder/CheapHerder/views.py
+Though it may be confusing to navigate through the different files and code of this project, the essential core functionality lies within the views.py file. The file can be found at the path: CheapHerder/CheapHerder/views.py. Furthermore, the database schema is located at the path: CheapHerder/CheapHerder/models.py 
 
 DEMO DEMONSTRATION: A Demo of the application can be found on YouTube https://www.youtube.com/watch?v=Zz4h4_KdsfI
