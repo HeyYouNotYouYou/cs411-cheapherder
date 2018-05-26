@@ -1,3 +1,4 @@
+## The following are import statements for the different forums and models/tables needed for the web application
 from django.views.generic import TemplateView, View, ListView, DetailView
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
@@ -13,92 +14,80 @@ from django.utils import timezone
 from decimal import Decimal
 from django.db import connection
 from django.conf import settings
-
 import datetime
-
 import random
-
-
+##############################################################################################################################################################################
+## The Following classes are connected with a particular view (By view we mean a specific web page the user looks at)
+## So for instance the following class index view sets up the homepage for the user to look at
+##############################################################################################################################################################################
 class Index(TemplateView):
     template_name = "index.html"
 
-
+##############################################################################################################################################################################
+## Supplier View sets up the html page and data to be displayed on the seller's login (registration) perspective
 class SupplierFormView(View):
     form_class = SupplierForm
     template_name = "registration_supp_form.html"
 
-    # display blank form
+    # display blank form (login)
     def get(self, request):
         form = self.form_class(None)
         return render(request, self.template_name, {'form': form})
 
-    # process form data
+    # process form data (Username and Password)
     def post(self, request):
         form = self.form_class(request.POST)
 
         if form.is_valid():
-
             user = form.save(commit=False)
-
             # normalize data
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user.set_password(password)
             user.save()
-
             # add user to correct group
             g = userGroup.objects.get(name='Suppliers')
             g.user_set.add(user)
-
             # authenticate then login supplier
-
             user = authenticate(username=username, password=password)
+
             if user is not None:
                 if user.is_active:
                     login(request, user)
                     return redirect('supplier_products')
-
         return render(request, self.template_name, {'form': form})
-
-
-class OrganizationFormView(View):
+##############################################################################################################################################################################
+## Organization View here refers to the buyer's perspective login (registration) page which is similar to the supplier login (registration) page
     form_class = OrganizationForm
     template_name = "registration_org_form.html"
-
-    # display blank form
+    # display blank login form
     def get(self, request):
         form = self.form_class(None)
         return render(request, self.template_name, {'form': form})
-
-    # process form data
+    # process form data ( username and password)
     def post(self, request):
         form = self.form_class(request.POST)
 
         if form.is_valid():
-
             user = form.save(commit=False)
-
             # normalize data
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             user.set_password(password)
             user.save()
-
             # add user to correct group
             g = userGroup.objects.get(name='Organizations')
             g.user_set.add(user)
-
-            # authenticate then login supplier
-
+            # authenticate then login Organization/Buyer
             user = authenticate(username=username, password=password)
+
             if user is not None:
                 if user.is_active:
                     login(request, user)
                     return redirect('org_home')
-
         return render(request, self.template_name, {'form': form})
-
-
+##############################################################################################################################################################################
+## The following definition allows for the seller to create prices for a product that the seller wishes to post for the buyers to view 
 def create_prices(request, product_id):
     if not request.user.is_authenticated():
         return redirect('index')
@@ -126,8 +115,8 @@ def create_prices(request, product_id):
             "product": product
         }
         return render(request, 'create_prices.html', context)
-
-
+##############################################################################################################################################################################
+## The following definition allows for the seller to create products to post for the buyers to view 
 def create_product(request):
     if not request.user.is_authenticated():
         return redirect('index')
@@ -145,21 +134,21 @@ def create_product(request):
             "form": form,
         }
         return render(request, 'create_product.html', context)
-
-
+##############################################################################################################################################################################
+## The following definition allows for the seller to delete products that were previously posted  
 def delete_product(request, product_id):
     product = Product.objects.get(item_code=product_id)
     product.delete()
     return redirect('supplier_products')
-
-
+##############################################################################################################################################################################
+## The following definition allows for the removal of a group order for a particular product 
 def delete_group(request, group_id):
        g = ProdGroup.objects.get(group_id=group_id)
        prod = g.product_id
        g.delete()
        return redirect('org_product_detail',pk=prod.item_code)
-
-def delete_price(request, price_id):
+##############################################################################################################################################################################
+## The following definition allows for the removal of a product's price where a product might have multiple prices depending on the quantity that is about to be purchased
     product_price = Product_Price.objects.get(price_id=price_id)
     price = Price.objects.get(price_id=price_id)
     product = Product.objects.get(item_code=product_price.item_code_id)
@@ -167,8 +156,8 @@ def delete_price(request, price_id):
     price.delete()
     product_price.delete()
     return render(request, 'product_detail.html', {'product': product, 'user': user})
-
-
+##############################################################################################################################################################################
+## The following definition allows for the seller to make edits to any information related to the product that was posted by this seller
 def update_product(request, product_id):
     instance = get_object_or_404(Product, item_code=product_id)
     form = ProductForm(request.POST or None, instance=instance)
@@ -176,8 +165,8 @@ def update_product(request, product_id):
         form.save()
         return redirect('supplier_products')
     return render(request, 'update_product.html', {'form': form})
-
-
+##############################################################################################################################################################################
+## The following definition takes care of seller's side login 
 def SuppLogin(request):
     if request.method == "POST":
         username = request.POST['username']
@@ -192,8 +181,8 @@ def SuppLogin(request):
         else:
             return render(request, 'login_supp_form.html', {'error_message': 'Invalid login'})
     return render(request, 'login_supp_form.html')
-
-
+##############################################################################################################################################################################
+## The following definition takes care of buyer's side login 
 def OrgLogin(request):
     if request.method == "POST":
         username = request.POST['username']
@@ -208,8 +197,8 @@ def OrgLogin(request):
         else:
             return render(request, 'login_org_form.html', {'error_message': 'Invalid login'})
     return render(request, 'login_org_form.html')
-
-
+##############################################################################################################################################################################
+## The following definition takes care of logging out regardless of which perspective the user is in (buyer/seller)
 def logout_user(request):
     logout(request)
     if is_Supplier(request.user):
@@ -221,7 +210,8 @@ def logout_user(request):
     }
     return render(request, 'index.html', context)
 
-
+##############################################################################################################################################################################
+## The following definition presents all the products that the current seller has up on the database that are available for users to look at
 def supplier_products(request):
     if not request.user.is_authenticated():
         return render(request, 'index.html')
@@ -256,6 +246,10 @@ def SuppProductDetail(request, product_id):
         return render(request, 'product_detail.html', {'product': product, 'user': user})
  
 
+##############################################################################################################################################################################
+##  Recommend_keywords uses the helper function list_powerset and patterns to find all the possible combination of words that the user searched for in his/her search history
+## so if the user searches for Black Pencil and Black Paper and then also searches for Blue Pen and Green Pen then the recommend_ keywords will find that the word Black occured twice 
+## and the word Pen occured twice and so will give the recommended combo of Black Pen if we were to set the minimum frequency for a word to occur in the search history at 2  
 from itertools import chain, combinations
 
 def list_powerset(lst):
@@ -283,8 +277,10 @@ def recommend_keywords(request, support, num_keywords):
     # user_search_keywords=["Black Pencil", "Blue Pencil", "Fried Chicken", "Fried Peanuts", "Black Chair", "Chair Black"]
     user_records = []
     user_search_keywords = Search_Item.objects.filter(org_id=request.user)
+    
     if not (user_search_keywords):
         user_search_keywords = Search_Item.objects.all()
+    
     for record in user_search_keywords:
         temp = record.keyword
         words = temp.split(" ")
@@ -293,8 +289,9 @@ def recommend_keywords(request, support, num_keywords):
                 continue
             individual_words.append(i)
         user_records.append(words) 
-
+    
     lis_word_count = []
+
     for word in individual_words:
         count = 0
         Word = set([word])
@@ -303,12 +300,10 @@ def recommend_keywords(request, support, num_keywords):
             if Word.issubset(record):
                 count += 1
         lis_word_count.append((word, count))
-
     # support and num_keywords will be another argument passed in
     # support=2
     ##num_keywords=3
     ##
-
     n = 2
     frequent_patterns_len_n_minus_one = []
     frequent_patterns_len_n = [x[0] for x in lis_word_count if x[1] >= support]
@@ -317,29 +312,29 @@ def recommend_keywords(request, support, num_keywords):
     if not (frequent_patterns_len_n):
         lis = []
         return lis
-        ## do something about this edge case later where keyword record with only one word do not meet the support requirement
 
     while (n <= num_keywords):
+    
         lis = patterns(user_records, keywords, n)
         lis = [x[0] for x in lis if x[1] >= support]
+    
         if not (lis):
             break
+    
         frequent_patterns_len_n_minus_one = frequent_patterns_len_n
         frequent_patterns_len_n = lis
         n += 1
         keywords = []
+    
         for i in lis:
             for j in i:
                 if j in keywords:
                     continue
                 keywords.append(j)
     return frequent_patterns_len_n
-
-
-
-
-
-# home page and top picks - just a random sample - we can implement a better algorithm later
+##############################################################################################################################################################################
+## The following class shows the hompage for a buyer once the buyer has logged in from the buyer's perspective
+# home page and top picks - just a random sample 
 class OrgHome(TemplateView):
     template_name = "org_home.html"
 
@@ -370,16 +365,15 @@ class OrgHome(TemplateView):
 
         context["suggested"] = suggested[:4]
 
-
         return context
 
 
+##############################################################################################################################################################################
+## The following two definitions take care of presenting the search page and its functions to the buyer 
 
-# Main list of products - simple filtering for search and category selection
-class OrgProducts(ListView):
     model = Product
     template_name = "org_products.html"
-    paginate_by = 24  # I love django
+    paginate_by = 24  
 
     def get_context_data(self, **kwargs):
         context = super(OrgProducts, self).get_context_data(**kwargs)
@@ -405,13 +399,14 @@ class OrgProducts(ListView):
             return original.filter(category=category)
         else:
             return original
-
-
+##############################################################################################################################################################################
+## The class shows the information for a product once the buyer selects a product from the search page
 # Product detail pages - simple post for creating new groups
 class OrgProductDetail(DetailView):
     template_name = "product_single.html"
     model = Product
 
+    ## This inner function enables the buyer (after the product has been selected) to create a group order for the product
     # The input needs to be cleaned before being used in a model creation
     def post(self, request, **kwargs):
         name = request.POST.get("name", None)
@@ -447,7 +442,8 @@ class OrgProductDetail(DetailView):
 		context["owners"] = getDictFor(grps,self.request)
 		return context
 
-
+##############################################################################################################################################################################
+## The following class shows information related to a particular group order and also allows buyers to view another buyer's pledge and quantity amount for the particular order
 class OrgGroupDetail(DetailView):
     model = ProdGroup
     template_name = "group_single.html"
@@ -499,6 +495,7 @@ class OrgGroupDetail(DetailView):
         context["allow_pledge"] = allow_pledge
         return context
 
+##############################################################################################################################################################################
 
 '''********** HELPER FUNCTIONS ************ '''
 
@@ -554,3 +551,4 @@ def is_Supplier(user):
 
 def is_Organization(user):
     return user.groups.filter(name='Organizations').exists()
+##############################################################################################################################################################################
